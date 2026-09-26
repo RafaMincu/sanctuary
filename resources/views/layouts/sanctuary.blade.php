@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="ro" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,31 +71,24 @@
         }
     </style>
 </head>
-<body class="bg-[#060608] text-zinc-100 font-sans antialiased overflow-x-hidden pb-24">
+<body class="bg-[#060608] text-zinc-100 font-sans antialiased overflow-x-hidden min-h-screen flex flex-col justify-between">
 
     <div class="absolute inset-0 grid-bg opacity-15 pointer-events-none z-0 h-screen"></div>
     <div class="absolute inset-0 pointer-events-none z-[1] h-screen overflow-hidden">
         <div class="scanline h-32 w-full bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent"></div>
     </div>
+    
     @yield('orbs')
+
     <div id="cursor-glow" class="pointer-events-none fixed inset-0 z-[2] opacity-0 transition-opacity duration-300" style="background: radial-gradient(420px circle at 50% 30%, rgba(34,211,238,0.09), transparent 55%);"></div>
 
-    <header class="relative z-10 max-w-7xl mx-auto px-8 py-5 flex justify-between items-center gap-6 border-b border-zinc-900 bg-[#060608]/85 backdrop-blur-xl sticky top-0">
-        <a href="{{ url('/') }}" class="text-2xl font-black tracking-wider uppercase bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            The Sanctuary
-        </a>
-        <nav class="flex items-center gap-4 sm:gap-6 text-xs uppercase tracking-widest font-bold">
-            <a href="{{ url('/') }}" class="{{ ($page ?? '') === 'home' ? 'text-white' : 'text-zinc-500 hover:text-zinc-200' }}">Acasă</a>
-            <a href="{{ url('/garaj') }}" class="{{ ($page ?? '') === 'garaj' ? 'text-cyan-400' : 'text-zinc-500 hover:text-zinc-200' }}">Garaj</a>
-            <a href="{{ url('/fitness') }}" class="{{ ($page ?? '') === 'fitness' ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-200' }}">Fitness</a>
-        </nav>
-        <div class="status-live px-3 py-1.5 border border-emerald-500/30 bg-emerald-950/20 text-emerald-400 text-xs uppercase tracking-widest font-bold rounded-sm flex items-center gap-2">
-            <span class="hud-dot inline-block h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-            Sistem Online
-        </div>
-    </header>
+    <x-navbar />
 
-    @yield('content')
+    <main class="relative z-10 flex-grow">
+        @yield('content')
+    </main>
+
+    <x-footer />
 
     <script>
         (function () {
