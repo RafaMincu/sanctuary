@@ -1,6 +1,7 @@
 @php
     $isHome = request()->is('/');
     $isGaraj = request()->is('garaj*');
+    $isFood = request()->is('food*');
     $isFitness = request()->is('fitness*');
 @endphp
 
@@ -22,8 +23,8 @@
                class="transition-colors duration-200 py-1 border-b-2 {{ $isGaraj ? 'text-cyan-400 border-cyan-400' : 'text-zinc-500 border-transparent hover:text-cyan-400/80' }}">
                 Garaj Auto
             </a>
-            <a href="{{ url('/#food') }}" 
-               class="transition-colors duration-200 py-1 border-b-2 text-zinc-500 border-transparent hover:text-emerald-400">
+            <a href="{{ url('/food') }}" 
+               class="transition-colors duration-200 py-1 border-b-2 {{ $isFood ? 'text-emerald-400 border-emerald-400' : 'text-zinc-500 border-transparent hover:text-emerald-400' }}">
                 Zona Food
             </a>
             <a href="{{ url('/fitness') }}" 
@@ -65,8 +66,8 @@
            class="block py-2 text-xs uppercase tracking-widest font-bold {{ $isGaraj ? 'text-cyan-400 pl-2 border-l-2 border-cyan-400' : 'text-zinc-400 hover:text-cyan-400' }}">
             Garaj Auto (Aripa Stângă)
         </a>
-        <a href="{{ url('/#food') }}" 
-           class="block py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-emerald-400">
+        <a href="{{ url('/food') }}" 
+           class="block py-2 text-xs uppercase tracking-widest font-bold {{ $isFood ? 'text-emerald-400 pl-2 border-l-2 border-emerald-400' : 'text-zinc-400 hover:text-emerald-400' }}">
             Zona Food (Zona Centrală)
         </a>
         <a href="{{ url('/fitness') }}" 

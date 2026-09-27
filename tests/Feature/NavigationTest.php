@@ -27,6 +27,17 @@ class NavigationTest extends TestCase
         $response->assertSee('Vrei o programare?');
     }
 
+    public function test_food_page_renders_successfully(): void
+    {
+        $response = $this->get('/food');
+
+        $response->assertStatus(200);
+        $response->assertSee('The Sanctuary Food');
+        $response->assertSee('Nutriție Sportivă');
+        $response->assertSee('Pasul 1');
+        $response->assertSee('Vrei o masă sau comandă to-go?');
+    }
+
     public function test_fitness_page_renders_successfully(): void
     {
         $response = $this->get('/fitness');

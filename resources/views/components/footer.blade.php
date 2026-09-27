@@ -38,10 +38,10 @@
                 </div>
                 <h4 class="text-white text-sm font-bold uppercase tracking-wide">The Sanctuary Food</h4>
                 <ul class="text-xs space-y-2 text-zinc-400">
-                    <li><a href="{{ url('/#food') }}" class="hover:text-emerald-400 transition-colors">Meniu Nutriție & Fitness</a></li>
-                    <li><a href="{{ url('/#food') }}" class="hover:text-emerald-400 transition-colors">Specialty Coffee & Bar</a></li>
-                    <li><a href="{{ url('/#food') }}" class="hover:text-emerald-400 transition-colors">Terasă & Zonă Așteptare</a></li>
-                    <li><a href="{{ url('/#food') }}" class="hover:text-emerald-400 transition-colors">Rezervări Evenimente</a></li>
+                    <li><a href="{{ url('/food') }}" class="hover:text-emerald-400 transition-colors">Meniu Nutriție & Fitness</a></li>
+                    <li><a href="{{ url('/food') }}" class="hover:text-emerald-400 transition-colors">Specialty Coffee & Bar</a></li>
+                    <li><a href="{{ url('/food') }}" class="hover:text-emerald-400 transition-colors">Terasă & Zonă Așteptare</a></li>
+                    <li><a href="{{ url('/food') }}" class="hover:text-emerald-400 transition-colors">Rezervări Evenimente</a></li>
                 </ul>
             </div>
 

@@ -68,8 +68,8 @@
                         Deschis Zilnic • 08:00 - 22:00
                     </span>
                     <div>
-                        <a href="tel:#" class="text-emerald-400 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-all duration-300 group-hover:underline group-hover:tracking-widest group-hover:gap-3">
-                            Rezervări & Bar Lounge &rarr;
+                        <a href="{{ url('/food') }}" class="text-emerald-400 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-all duration-300 group-hover:underline group-hover:tracking-widest group-hover:gap-3">
+                            Descoperă Zona Food &rarr;
                         </a>
                     </div>
                 </div>
