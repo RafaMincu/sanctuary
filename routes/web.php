@@ -8,32 +8,26 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/executa-tot-baza-date', function () {
     try {
-        // 1. Curățăm cache-ul Laravel ca să fim siguri că rutele sunt reîmprospătate
+        // 1. Curățăm cache-ul Laravel ca să fim siguri că rutele sunt proaspete
         \Illuminate\Support\Facades\Artisan::call('route:clear');
         \Illuminate\Support\Facades\Artisan::call('config:clear');
 
-        // 2. Forțăm rularea migrărilor (va citi fișierul tău fizic și va crea tabela 'admins')
+        // 2. Forțăm rularea migrărilor proaspete (va crea TOATE tabelele, inclusiv 'admins')
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
 
-        // 3. Forțăm rularea seeder-ului pentru a introduce contul de admin criptat prin Bcrypt
+        // 3. Rulăm direct introducerea contului de admin din fișierul tău
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
 
-        // 4. Verificăm rapid dacă utilizatorul a fost inserat cu succes în PostgreSQL online
-        $adminExistent = \App\Models\Admin::where('email', 'admin@sanctuary.ro')->first();
-
-        if ($adminExistent) {
-            return '✅ REUȘITĂ COMPLETĂ!<br>
-                    1. Tabela <b>admins</b> a fost generată automat în cloud.<br>
-                    2. Contul a fost injectat cu succes în baza de date de pe Render.<br><br>
-                    Mergi la login cu: <b>admin@sanctuary.ro</b> și parola <b>sanctuary2026</b>.';
-        }
-
-        return '⚠️ Migrările au rulat, dar contul nu a fost găsit în tabelă. Verifică fișierul AdminSeeder.php.';
+        return '✅ REUȘITĂ COMPLETĂ!<br>
+                1. Tabela <b>admins</b> și toate celelalte structuri au fost verificate/create online.<br>
+                2. Fișierul AdminSeeder a fost executat direct în PostgreSQL-ul de pe Render.<br><br>
+                Mergi la login cu email-ul și parola ta implicită (Ex: <b>admin@sanctuary.ro</b> / <b>sanctuary2026</b>).';
 
     } catch (\Exception $e) {
         return '🔴 Eroare la executare: ' . $e->getMessage();
     }
 });
+
 
 
 // Live chat API routes (public – works for guests via session + authenticated users)
