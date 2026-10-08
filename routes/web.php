@@ -6,20 +6,29 @@ use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 
+
+// =========================================================================
+// RUTĂ PENTRU INJECTAREA INSTANTANEE A CONTULUI DE ADMIN (IGNORĂ MIGRĂRILE)
+// =========================================================================
 Route::get('/executa-tot-baza-date', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('route:clear');
-        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        // 1. Ștergem orice înregistrare anterioară defectă cu acest email
+        \App\Models\Admin::where('email', 'admin@sanctuary.ro')->delete();
 
-        // Șterge tabelele vechi și defecte, creând structura corectă de coloane de pe PC
-        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+        // 2. Creăm utilizatorul scriind datele direct în cod, forțând criptarea Bcrypt
+        $admin = \App\Models\Admin::create([
+            'name'     => 'Admin Sanctuary',
+            'email'    => 'admin@sanctuary.ro',
+            'password' => \Illuminate\Support\Facades\Hash::make('test'), // Parola criptată corect
+        ]);
 
-        // Execută exact fișierul tău AdminSeeder
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+        return "✅ UTILIZATORUL A FOST CREAT CU SUCCES ÎN BAZA LIVE RENDERE!<br><br>
+                Email Admin: <b>{$admin->email}</b><br>
+                Parolă Admin: <b>test</b><br><br>
+                Încearcă acum să te loghezi în panoul de chat cu aceste date exacte!";
 
-        return '✅ REUȘITĂ COMPLETĂ! Tabela admins a fost reconstruită, iar AdminSeeder a fost executat cu succes!';
     } catch (\Exception $e) {
-        return '🔴 Eroare la executare: ' . $e->getMessage();
+        return '🔴 Eroare critică la scriere: ' . $e->getMessage();
     }
 });
 
