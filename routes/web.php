@@ -6,6 +6,32 @@ use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 //eu
+use App\Models\Admin; // sau \App\Models\User dacă tabela se numește users
+
+Route::get('/migreaza-admin-acum', function () {
+    try {
+        // 1. Rulăm migrarea și seeder-ul
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+        
+        // 2. Căutăm adminul în baza de date ca să verificăm dacă există
+        $admin = Admin::where('email', 'admin@sanctuary.ro')->first(); // Ajustează email-ul dacă ai pus altul în .env
+        
+        if ($admin) {
+            return "✅ SUCCES! Adminul a fost găsit în baza de date online.<br>
+                    Nume: {$admin->name}<br>
+                    Email: {$admin->email}";
+        } else {
+            return "❌ Tabela există, dar contul de admin NU s-a creat. Verifică fișierul AdminSeeder.";
+        }
+
+    } catch (\Exception $e) {
+        return '🔴 Eroare la executare: ' . $e->getMessage();
+    }
+});//eu
+
+
+//eu
 use Illuminate\Support\Facades\Artisan;
 
 // Rută temporară pentru crearea automată a tabelelor în PostgreSQL pe Render
