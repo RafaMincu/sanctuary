@@ -6,6 +6,21 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 
+        // FORȚĂM MIGRAREA DIRECT AICI (Adaugă exact acest bloc înainte de linia 106)
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        } catch (\Exception $e) {
+            // Dacă tabelele există deja, Postgres va da o eroare pe care o ignorăm în siguranță aici
+        }
+
+        // Codul tău neschimbat care dădea eroare:
+        if ($phone !== '') {
+            $query->where('client_phone', 'like', '%' . $phone . '%');
+        }
+
+        $booking = $query->latest()->first();
+
+
 class BookingController extends Controller
 {
     /**
