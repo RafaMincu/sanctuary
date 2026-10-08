@@ -5,30 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
-<?php
 
-use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-| NOTĂ: Importul pentru Admin de la linia 15 a fost păstrat la locul lui.
-| Doar înlocuiește restul fișierului dedesubt cu rutele tale actuale.
-|
-*/
-
-// ... Pune rutele tale existente aici (Acasă, Programări, Autentificare Chat etc.) ...
-
-
-// =========================================================================
-// RUTĂ DE URGENȚĂ PENTRU RENDER (O poți lăsa direct la sfârșitul fișierului)
-// =========================================================================
 Route::get('/executa-tot-baza-date', function () {
     try {
         // 1. Curățăm cache-ul Laravel ca să fim siguri că rutele sunt reîmprospătate
