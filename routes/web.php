@@ -6,7 +6,6 @@ use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\Admin;
-use Illuminate\Support\Facades\Artisan;
 
 Route::get('/migreaza-admin-acum', function () {
     try {
