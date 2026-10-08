@@ -22,5 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+<<<<<<< HEAD
 database/database.sqlite
 database/database.sqlite
+=======
+>>>>>>> 45c9c01d14d54155d8160e2685232f17a753ff2e
