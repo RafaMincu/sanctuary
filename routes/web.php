@@ -29,30 +29,6 @@ Route::get('/executa-tot-baza-date', function () {
 });
 
 
-
-use App\Models\Admin;
-use Illuminate\Support\Facades\Hash;
-
-Route::get('/migreaza-admin-acum', function () {
-    try {
-        // Ștergem înregistrarea veche cu parola text simplu
-        Admin::where('email', 'admin@sanctuary.ro')->delete();
-
-        // Creăm contul nou și forțăm generarea algoritmului Bcrypt prin Hash::make
-        $admin = Admin::create([
-            'name'     => 'Admin Sanctuary',
-            'email'    => 'admin@sanctuary.ro',
-            'password' => Hash::make('test1234'),
-        ]);
-
-        return '✅ SUCCES! Parola a fost criptată cu succes prin Bcrypt. Te poți loga!';
-    } catch (\Exception $e) {
-        return 'Eroare: ' . $e->getMessage();
-    }
-});
-
-
-
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
