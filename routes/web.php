@@ -5,6 +5,60 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+| NOTĂ: Importul pentru Admin de la linia 15 a fost păstrat la locul lui.
+| Doar înlocuiește restul fișierului dedesubt cu rutele tale actuale.
+|
+*/
+
+// ... Pune rutele tale existente aici (Acasă, Programări, Autentificare Chat etc.) ...
+
+
+// =========================================================================
+// RUTĂ DE URGENȚĂ PENTRU RENDER (O poți lăsa direct la sfârșitul fișierului)
+// =========================================================================
+Route::get('/executa-tot-baza-date', function () {
+    try {
+        // 1. Curățăm cache-ul Laravel ca să fim siguri că rutele sunt reîmprospătate
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+
+        // 2. Forțăm rularea migrărilor (va citi fișierul tău fizic și va crea tabela 'admins')
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+
+        // 3. Forțăm rularea seeder-ului pentru a introduce contul de admin criptat prin Bcrypt
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+
+        // 4. Verificăm rapid dacă utilizatorul a fost inserat cu succes în PostgreSQL online
+        $adminExistent = \App\Models\Admin::where('email', 'admin@sanctuary.ro')->first();
+
+        if ($adminExistent) {
+            return '✅ REUȘITĂ COMPLETĂ!<br>
+                    1. Tabela <b>admins</b> a fost generată automat în cloud.<br>
+                    2. Contul a fost injectat cu succes în baza de date de pe Render.<br><br>
+                    Mergi la login cu: <b>admin@sanctuary.ro</b> și parola <b>sanctuary2026</b>.';
+        }
+
+        return '⚠️ Migrările au rulat, dar contul nu a fost găsit în tabelă. Verifică fișierul AdminSeeder.php.';
+
+    } catch (\Exception $e) {
+        return '🔴 Eroare la executare: ' . $e->getMessage();
+    }
+});
+
+
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
@@ -23,7 +77,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/chat/{sessionId}/reply', [AdminChatController::class, 'reply'])->name('admin.chat.reply');
 });
 
-//test
+
 
 Route::get('/', function () {
     return view('welcome');
