@@ -23,7 +23,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/admin/chat/{sessionId}/reply', [AdminChatController::class, 'reply'])->name('admin.chat.reply');
 });
 
-
+//test
 
 Route::get('/', function () {
     return view('welcome');
