@@ -4,28 +4,23 @@ use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
+
+
 use App\Models\Admin;
 
-Route::get('/migreaza-admin-acum', function () {
-    try {
-        // 1. Rulăm DOAR introducerea datelor (seeder-ul), deoarece tabelele există deja
-        Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
-        
-        // 2. Căutăm administratorul în baza de date ca să verificăm dacă s-a inserat
-        $admin = Admin::where('email', 'admin@sanctuary.ro')->first();
-        
-        if ($admin) {
-            return "✅ SUCCES COMPLET! Administratorul a fost salvat și verificat direct în baza online.<br>
-                    Nume: {$admin->name}<br>
-                    Email: {$admin->email}";
-        }
-        
-        return "⚠️ Seeder-ul a rulat, dar contul NU a fost găsit. Verifică valorile implicite din fișierul AdminSeeder.php.";
+Route::get('/vezi-admin-live', function () {
+    // Căutăm primul admin creat în baza de date
+    $admin = Admin::first();
 
-    } catch (\Exception $e) {
-        return '🔴 Eroare la populare: ' . $e->getMessage();
+    if (!$admin) {
+        return "❌ Nu există niciun cont în tabela 'admins' pe serverul Render!";
     }
+
+    return "<h3>Cont găsit în baza live:</h3>
+            Nume: <b>{$admin->name}</b><br>
+            Email: <b>{$admin->email}</b><br>
+            Parolă în baza de date (Hash criptat): <b>{$admin->password}</b><br><br>
+            <i>Notă: Dacă parola nu începe cu '$2y$' sau '$2b$', înseamnă că NU este criptată, iar Laravel nu te va lăsa să te loghezi!</i>";
 });
 
 
