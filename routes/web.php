@@ -5,30 +5,6 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
-
-
-use Illuminate\Support\Facades\Artisan;
-
-// Rută temporară pentru a ocoli complet blocajele de pe Render Free
-Route::get('/executa-tot-baza-date', function () {
-    try {
-        // 1. Curățăm cache-ul Laravel ca să fim siguri că nu e nimic blocat
-        Artisan::call('route:clear');
-        Artisan::call('config:clear');
-
-        // 2. Forțăm rularea migrărilor (crearea tabelelor lipsă precum 'admins')
-        Artisan::call('migrate', ['--force' => true]);
-
-        // 3. Forțăm rularea seeder-ului pentru a introduce contul de admin criptat
-        Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
-
-        return '✅ REUȘITĂ! Tabela admins a fost creată și adminul a fost injectat în baza de date PostgreSQL de pe Render!';
-    } catch (\Exception $e) {
-        return '🔴 Eroare la executare: ' . $e->getMessage();
-    }
-});
-
-
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
