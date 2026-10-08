@@ -1,56 +1,55 @@
-<div
-    x-data="{
-        open: false,
-        messages: [],
-        newMessage: '',
-        loading: false,
-        unread: 0,
-        booted: false,
-        lastId: 0,
-        lastTypeAt: 0,
+ {{-- Bula de chat apare DOAR pentru vizitatori — niciodată pe /admin* ca să nu acopere panoul --}}
+ @if (!request()->is('admin*'))
+ <div
+     x-data="{
+         open: false,
+         messages: [],
+         newMessage: '',
+         loading: false,
+         unread: 0,
+         booted: false,
+         lastId: 0,
+         lastTypeAt: 0,
 
-        init() { if (window.sanctuaryChat) window.sanctuaryChat.attach(this); },
+                 fetchMessages() {
+             const params = [];
+             if (this.open) params.push('open=1');
+             if (this.open && this.newMessage.trim() && Date.now() - this.lastTypeAt < 3000) params.push('typing=1');
+             const qs = params.length ? '?' + params.join('&') : '';
+             fetch('{{ route('chat.messages') }}' + qs, {
+                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+             })
+             .then(r => r.json())
+             .then(data => {
+                 const msgs = data.messages || [];
+                 if (this.booted && msgs.length && typeof window.sanctuaryDing === 'function' && msgs.some(m => !m.from_user && m.id > this.lastId)) window.sanctuaryDing();
+                 this.lastId = msgs.reduce((mx, m) => Math.max(mx, m.id), this.lastId);
+                 this.messages = msgs;
+                 this.unread = data.unread || 0;
+                 this.$nextTick(() => {
+                     const box = this.$refs.messageBox;
+                     if (box) box.scrollTop = box.scrollHeight;
+                 });
+             });
+         },
 
-        fetchMessages() {
-            const params = [];
-            if (this.open) params.push('open=1');
-            if (this.open && this.newMessage.trim() && Date.now() - this.lastTypeAt < 3000) params.push('typing=1');
-            const qs = params.length ? '?' + params.join('&') : '';
-            fetch('{{ route('chat.messages') }}' + qs, {
-                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
-            })
-            .then(r => r.json())
-            .then(data => {
-                const msgs = data.messages || [];
-                if (this.booted && msgs.length && typeof window.sanctuaryDing === 'function' && msgs.some(m => !m.from_user && m.id > this.lastId)) window.sanctuaryDing();
-                this.lastId = msgs.reduce((mx, m) => Math.max(mx, m.id), this.lastId);
-                this.messages = msgs;
-                this.unread = data.unread || 0;
-                this.$nextTick(() => {
-                    const box = this.$refs.messageBox;
-                    if (box) box.scrollTop = box.scrollHeight;
-                });
-            });
-        },
+         sendMessage() {
+             if (!this.newMessage.trim() || this.loading) return;
+             this.loading = true;
+             fetch('{{ route('chat.message.store') }}', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
+                 body: JSON.stringify({ message: this.newMessage })
+             })
+             .then(r => r.json())
+             .then(() => { this.newMessage = ''; this.loading = false; this.fetchMessages(); })
+             .catch(() => { this.loading = false; });
+         },
 
-        sendMessage() {
-            if (!this.newMessage.trim() || this.loading) return;
-            this.loading = true;
-            fetch('{{ route('chat.message.store') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
-                body: JSON.stringify({ message: this.newMessage })
-            })
-            .then(r => r.json())
-            .then(() => { this.newMessage = ''; this.loading = false; this.fetchMessages(); })
-            .catch(() => { this.loading = false; });
-        },
-
-        toggle() { this.open = !this.open; if (this.open) this.fetchMessages(); }
-    }"
-    x-init="init()"
-    id="visitor-chat"
->
+         toggle() { this.open = !this.open; if (this.open) this.fetchMessages(); }
+     }"
+     id="visitor-chat"
+ >
     {{-- Fereastra de chat --}}
 <script>
     // Notificare sonoră pentru mesaje noi (Web Audio API — fără fișiere audio).
@@ -283,3 +282,4 @@
     </button>
 </div>
 </div>
+@endif

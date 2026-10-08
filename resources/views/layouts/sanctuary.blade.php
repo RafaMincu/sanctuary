@@ -111,8 +111,10 @@
         })();
     </script>
 
-    {{-- Live Chat Widget – visible for all visitors --}}
-    @include('chat.widget')
+    {{-- Live Chat Widget – vizibil doar pentru vizitatori (ascuns pe /admin* ca să nu acopere panoul) --}}
+    @unless (request()->is('*admin*'))
+        @include('chat.widget')
+    @endunless
 
 </body>
 </html>

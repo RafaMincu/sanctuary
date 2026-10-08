@@ -40,16 +40,16 @@
 
         <!-- Listă conversații (pasă la rând, fără reîncărcare) -->
         <div class="bg-[#0b0b0e]/80 border border-zinc-900 rounded-sm backdrop-blur-xl overflow-hidden">
-            <div class="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-zinc-900 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
-                <div class="col-span-3">Vizitator</div>
-                <div class="col-span-5">Ultimul Mesaj</div>
-                <div class="col-span-2">Mesaje</div>
-                <div class="col-span-2 text-right">Ultima Activitate</div>
+            <div class="hidden sm:flex items-center gap-4 px-5 py-3 border-b border-zinc-900 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                <div class="w-48 shrink-0">Vizitator</div>
+                <div class="flex-1">Ultimul Mesaj</div>
+                <div class="w-24 shrink-0">Mesaje</div>
+                <div class="w-32 shrink-0 text-right">Ultima Activitate</div>
             </div>
 
             <div id="conversation-list">
                 @if ($conversations->isEmpty())
-                    <div class="bg-[#0b0b0e]/80 border border-zinc-900 rounded-sm backdrop-blur-xl p-12 text-center">
+                    <div class="p-12 text-center">
                         <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 flex items-center justify-center">
                             <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                         </div>
@@ -60,25 +60,41 @@
                     @foreach ($conversations as $conv)
                         <a href="{{ route('admin.chat.show', $conv['session_id']) }}"
                            data-session="{{ $conv['session_id'] }}"
-                           class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">
-                            <div class="sm:col-span-3 flex items-center gap-3">
-                                <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">
-                                    {{ strtoupper(substr($conv['sender_name'], 0, 1)) }}
+                           class="flex items-center gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">
+                            <div class="w-48 shrink-0 flex items-center gap-3 min-w-0">
+                                {{-- Avatar cu inițiala + dot prezență --}}
+                                <div class="relative w-8 h-8 shrink-0">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">
+                                        {{ strtoupper(substr($conv['sender_name'], 0, 1)) }}
+                                    </div>
+                                    @if ($conv['guest_online'] ?? false)
+                                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0b0b0e]"></span>
+                                    @else
+                                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-zinc-600 border-2 border-[#0b0b0e]"></span>
+                                    @endif
                                 </div>
-                                <span class="text-white text-sm font-semibold group-hover:text-cyan-300 transition-colors truncate">{{ $conv['sender_name'] }}</span>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-white text-sm font-semibold group-hover:text-cyan-300 transition-colors truncate">{{ $conv['sender_name'] }}</span>
                                 <span data-unread-badge
                                       class="shrink-0 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full"
                                       style="{{ $conv['unread'] > 0 ? '' : 'display:none;' }}">{{ $conv['unread'] }}</span>
                             </div>
-                            <div class="sm:col-span-5 text-zinc-400 text-xs truncate self-center">
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span data-online-dot class="w-1.5 h-1.5 rounded-full {{ ($conv['guest_online'] ?? false) ? 'bg-emerald-400' : 'bg-zinc-600' }}"></span>
+                                        <span data-online-text class="text-[11px] font-mono {{ ($conv['guest_online'] ?? false) ? 'text-emerald-400' : 'text-zinc-600' }}">{{ ($conv['guest_online'] ?? false) ? 'Online' : 'Offline' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 text-zinc-400 text-xs truncate">
                                 <span data-last-message>{{ $conv['last_message'] }}</span>
                             </div>
-                            <div class="sm:col-span-2 self-center">
+                            <div class="w-24 shrink-0">
                                 <span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">
                                     {{ $conv['total'] }} mesaj{{ $conv['total'] > 1 ? 'e' : '' }}
                                 </span>
                             </div>
-                            <div class="sm:col-span-2 sm:text-right text-zinc-500 text-[11px] font-mono self-center">
+                            <div class="w-32 shrink-0 text-right text-zinc-500 text-[11px] font-mono">
                                 {{ \Carbon\Carbon::parse($conv['last_at'])->diffForHumans() }}
                             </div>
                         </a>
@@ -129,6 +145,9 @@
                 }
             }
 
+            // Prefixul rutei show (ex: /sanctuary/public/admin/chat) — înlocuim :id cu session_id.
+            const showBase = @json(route('admin.chat.show', ['sessionId' => '__SID__'])).replace('__SID__', '');
+
             function poll() {
                 fetch(url, { headers: { 'Accept': 'application/json' } })
                     .then(r => r.ok ? r.json() : null)
@@ -143,16 +162,25 @@
                             reloadedForNew = true;
                             const row = convs.find(c => !known.includes(c.session_id));
                             if (row) {
+                                const initial = (row.sender_name || 'V').charAt(0).toUpperCase();
                                 appendRow(
-                                    '<a href="' + /*route('admin.chat.show', $conv['session_id'])*/ + '" data-session="' + row.session_id + '" class="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">' +
-                                    '<div class="sm:col-span-3 flex items-center gap-3">' +
-                                    '<div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">' + /*strtoupper(substr($conv['sender_name'], 0, 1))*/ + '</div>' +
+                                    '<a href="' + showBase + row.session_id + '" data-session="' + row.session_id + '" class="flex items-center gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">' +
+                                    '<div class="w-48 shrink-0 flex items-center gap-3 min-w-0">' +
+                                    '<div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">' + initial + '</div>' +
+                                    '<div class="min-w-0">' +
+                                    '<div class="flex items-center gap-2">' +
                                     '<span class="text-white text-sm font-semibold group-hover:text-cyan-300 transition-colors truncate">' + row.sender_name + '</span>' +
                                     '<span data-unread-badge class="shrink-0 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full" style="' + (row.unread > 0 ? '' : 'display:none;') + '">' + row.unread + '</span>' +
                                     '</div>' +
-                                    '<div class="sm:col-span-5 text-zinc-400 text-xs truncate self-center"><span data-last-message>' + (row.last_message || '—') + '</span></div>' +
-                                    '<div class="sm:col-span-2 self-center"><span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">' + row.total + ' mesaje</span></div>' +
-                                    '<div class="sm:col-span-2 sm:text-right text-zinc-500 text-[11px] font-mono self-center">—</div>' +
+                                    '<div class="flex items-center gap-1.5 mt-0.5">' +
+                                    '<span data-online-dot class="w-1.5 h-1.5 rounded-full ' + (row.guest_online ? 'bg-emerald-400' : 'bg-zinc-600') + '"></span>' +
+                                    '<span data-online-text class="text-[11px] font-mono ' + (row.guest_online ? 'text-emerald-400' : 'text-zinc-600') + '">' + (row.guest_online ? 'Online' : 'Offline') + '</span>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="flex-1 min-w-0 text-zinc-400 text-xs truncate"><span data-last-message>' + (row.last_message || '—') + '</span></div>' +
+                                    '<div class="w-24 shrink-0"><span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">' + row.total + ' mesaje</span></div>' +
+                                    '<div class="w-32 shrink-0 text-right text-zinc-500 text-[11px] font-mono">—</div>' +
                                     '</a>'
                                 );
                             }
@@ -172,6 +200,15 @@
 
                             const last = row.querySelector('[data-last-message]');
                             if (last && c.last_message) last.textContent = c.last_message;
+
+                            // Prezența vizitatorului → dot + text Online/Offline (live, la 5s)
+                            const dot = row.querySelector('[data-online-dot]');
+                            const txt = row.querySelector('[data-online-text]');
+                            if (dot) dot.className = 'w-1.5 h-1.5 rounded-full ' + (c.guest_online ? 'bg-emerald-400' : 'bg-zinc-600');
+                            if (txt) {
+                                txt.textContent = c.guest_online ? 'Online' : 'Offline';
+                                txt.className = 'text-[11px] font-mono ' + (c.guest_online ? 'text-emerald-400' : 'text-zinc-600');
+                            }
                         });
 
                         updateTotal(total);

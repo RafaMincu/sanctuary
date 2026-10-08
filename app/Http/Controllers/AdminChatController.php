@@ -94,6 +94,8 @@ class AdminChatController extends Controller
                 return [
                     'session_id'   => $row->session_id,
                     'sender_name'  => $row->sender_name ?? 'Vizitator',
+                    'sender_initial' => strtoupper(substr($row->sender_name ?? 'V', 0, 1)),
+                    'guest_online' => (bool) Cache::get('chat:guest_online:' . $row->session_id, false),
                     'last_at'      => $row->last_at,
                     'total'        => $row->total,
                     'unread'       => $unread,
