@@ -3,6 +3,7 @@
     $isGaraj = request()->is('garaj*');
     $isFood = request()->is('food*');
     $isFitness = request()->is('fitness*');
+    $isBooking = request()->is('programari*');
 @endphp
 
 <header class="sticky top-0 z-50 border-b border-zinc-900 bg-[#060608]/85 backdrop-blur-xl">
@@ -31,6 +32,11 @@
                class="transition-colors duration-200 py-1 border-b-2 {{ $isFitness ? 'text-blue-400 border-blue-400' : 'text-zinc-500 border-transparent hover:text-blue-400/80' }}">
                 Sală Fitness
             </a>
+            <a href="{{ route('bookings.create') }}" 
+               class="transition-all duration-200 py-1 px-2.5 rounded-sm border {{ $isBooking ? 'border-cyan-400 bg-cyan-950/40 text-cyan-300' : 'border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200' }} flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                Programări
+            </a>
         </nav>
 
         <!-- Right Side: Status Badge + Mobile Toggle -->
@@ -50,7 +56,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
                 <svg id="menu-icon-close" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                 </svg>
             </button>
         </div>
@@ -73,6 +79,10 @@
         <a href="{{ url('/fitness') }}" 
            class="block py-2 text-xs uppercase tracking-widest font-bold {{ $isFitness ? 'text-blue-400 pl-2 border-l-2 border-blue-400' : 'text-zinc-400 hover:text-blue-400' }}">
             Sală Fitness (Aripa Dreaptă)
+        </a>
+        <a href="{{ route('bookings.create') }}" 
+           class="block py-2 text-xs uppercase tracking-widest font-bold {{ $isBooking ? 'text-cyan-400 pl-2 border-l-2 border-cyan-400' : 'text-zinc-300 hover:text-cyan-400' }}">
+            Programări & Rezervări
         </a>
         
         <div class="pt-3 border-t border-zinc-900/80 flex items-center justify-between text-[11px] font-mono text-zinc-500">

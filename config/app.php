@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Chat Password
+    |--------------------------------------------------------------------------
+    |
+    | Password used to access the live chat admin panel at /admin/chat.
+    | Override it via the ADMIN_CHAT_PASSWORD environment variable.
+    |
+    */
+
+    'admin_chat_password' => env('ADMIN_CHAT_PASSWORD', 'sanctuary2026'),
+
 ];

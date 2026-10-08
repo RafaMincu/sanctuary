@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'THE SANCTUARY | Ultimate Lifestyle Ecosystem')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         @keyframes fade-up {
             from { opacity: 0; transform: translateY(18px); }
@@ -108,6 +110,9 @@
             });
         })();
     </script>
+
+    {{-- Live Chat Widget – visible for all visitors --}}
+    @include('chat.widget')
 
 </body>
 </html>

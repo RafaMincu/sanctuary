@@ -93,9 +93,14 @@
                 <h2 class="text-white text-xl font-extrabold uppercase tracking-wide mb-2">Vrei o programare?</h2>
                 <p class="text-zinc-400 text-sm font-light leading-relaxed max-w-xl">Treci pe la recepția garajului sau lasă un mesaj cu marca, modelul și ce se întâmplă cu mașina. Îți confirmăm locul în atelier.</p>
             </div>
-            <a href="{{ url('/') }}" class="inline-flex items-center justify-center px-5 py-3 border border-cyan-400/40 text-cyan-400 text-xs font-bold uppercase tracking-widest hover:bg-cyan-400/10 transition-colors shrink-0">
-                ← Înapoi la complex
-            </a>
+            <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <a href="{{ route('bookings.create', ['wing' => 'auto']) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-cyan-400 text-black text-xs font-black uppercase tracking-widest hover:bg-cyan-300 transition-colors shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                    Programează în Garaj &rarr;
+                </a>
+                <a href="{{ url('/') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 border border-cyan-400/40 text-cyan-400 text-xs font-bold uppercase tracking-widest hover:bg-cyan-400/10 transition-colors">
+                    ← Înapoi
+                </a>
+            </div>
         </div>
     </section>
 @endsection

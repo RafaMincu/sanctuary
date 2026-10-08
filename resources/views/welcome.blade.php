@@ -12,7 +12,7 @@
 
 @section('content')
     <section class="relative z-10 max-w-3xl mx-auto px-6 pt-12 pb-2 text-center">
-        <p class="reveal text-zinc-500 text-xs uppercase tracking-[0.25em] mb-3 font-mono">// Ecosistem Unificat // Concept Est. 2026</p>
+        <p class="reveal text-zinc-500 text-xs uppercase tracking-[0.25em] mb-3 font-mono">// fa-l la loc cum era // Concept Est. 2026</p>
         <h1 class="reveal reveal-d1 text-4xl md:text-6xl font-black tracking-wide uppercase text-white mb-2">
             Welcome To <span class="relative inline-block">
                 <span class="title-live pointer-events-none absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 blur-xl opacity-50" aria-hidden="true">The Sanctuary</span>
@@ -22,6 +22,15 @@
         <p class="reveal reveal-d2 text-zinc-400 text-sm md:text-base font-light leading-relaxed max-w-xl mx-auto mt-2">
             Trei departamente de înaltă performanță reunite sub un singur acoperiș: mecanică de precizie, nutriție de calitate și antrenament dedicat.
         </p>
+        <div class="reveal reveal-d3 mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="{{ route('bookings.create') }}" class="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-emerald-400 text-black text-xs font-black uppercase tracking-widest hover:opacity-95 transition-opacity shadow-[0_0_20px_rgba(34,211,238,0.25)] flex items-center gap-2">
+                <span>Fă o Programare</span>
+                <span>&rarr;</span>
+            </a>
+            <a href="{{ route('bookings.lookup') }}" class="px-4 py-2.5 border border-zinc-800 text-zinc-400 hover:text-white text-xs font-mono uppercase tracking-wider rounded-sm transition-colors">
+                Verifică Status
+            </a>
+        </div>
     </section>
 
     <!-- Visual Centerpiece -->

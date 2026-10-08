@@ -10,7 +10,14 @@
                 <p class="text-xs text-zinc-500 font-mono leading-relaxed">
                     Ecosistem hibrid unificat: atelier mecanic avansat, restaurant & lounge, și club de forță & condiționare fizică.
                 </p>
-                <div class="pt-2 text-[11px] font-mono text-zinc-600">
+                <div class="pt-1 flex flex-wrap gap-2 text-xs font-mono">
+                    <a href="{{ route('bookings.create') }}" class="text-cyan-400 hover:underline">Programare &rarr;</a>
+                    <span class="text-zinc-700">•</span>
+                    <a href="{{ route('bookings.lookup') }}" class="text-zinc-400 hover:text-zinc-200">Verifică Status</a>
+                    <span class="text-zinc-700">•</span>
+                    <a href="{{ route('bookings.index') }}" class="text-zinc-500 hover:text-zinc-300">Staff Gestiune</a>
+                </div>
+                <div class="pt-1 text-[11px] font-mono text-zinc-600">
                     EST. 2026 // TOATE DREPTURILE REZERVATE
                 </div>
             </div>

@@ -93,9 +93,14 @@
                 <h2 class="text-white text-xl font-extrabold uppercase tracking-wide mb-2">Vrei o masă sau comandă to-go?</h2>
                 <p class="text-zinc-400 text-sm font-light leading-relaxed max-w-xl">Treci pe la restaurantul din zona centrală a complexului sau solicită barului pachetul tău personalizat de meal-prep. Te așteptăm zilnic între 08:00 și 22:00.</p>
             </div>
-            <a href="{{ url('/') }}" class="inline-flex items-center justify-center px-5 py-3 border border-emerald-400/40 text-emerald-400 text-xs font-bold uppercase tracking-widest hover:bg-emerald-400/10 transition-colors shrink-0">
-                ← Înapoi la complex
-            </a>
+            <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <a href="{{ route('bookings.create', ['wing' => 'food']) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-emerald-400 text-black text-xs font-black uppercase tracking-widest hover:bg-emerald-300 transition-colors shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                    Rezervă Masă & Food &rarr;
+                </a>
+                <a href="{{ url('/') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 border border-emerald-400/40 text-emerald-400 text-xs font-bold uppercase tracking-widest hover:bg-emerald-400/10 transition-colors">
+                    ← Înapoi
+                </a>
+            </div>
         </div>
     </section>
 @endsection

@@ -1,0 +1,37 @@
+﻿<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response;
+
+class AdminAuth
+{
+    /**
+     * Handle an incoming request.
+     * Checks if admin is logged in via session.
+     *
+     * @param  Closure(Request): (Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (!$request->session()->get('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        // PrezenÈ›a adminului pentru widget-ul vizitatorului: reÃ®nnoitÄƒ la fiecare
+        // cerere autentificatÄƒ (polling-ul panoului). DacÄƒ adminul Ã®nchide browserul
+        // fÄƒrÄƒ logout, expirÄƒ singurÄƒ prin TTL â†’ â€žOfflineâ€ Ã®n live chat.
+        Cache::put('chat:admin_online', true, now()->addSeconds(15));
+
+        // Numele adminului activ â†’ widget-ul aratÄƒ cine rÄƒspunde (â€žAna scrie...â€).
+        $adminName = $request->session()->get('admin_name');
+        if ($adminName) {
+            Cache::put('chat:admin_name', $adminName, now()->addSeconds(15));
+        }
+
+        return $next($request);
+    }
+}

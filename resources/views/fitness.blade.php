@@ -93,9 +93,14 @@
                 <h2 class="text-white text-xl font-extrabold uppercase tracking-wide mb-2">Vrei în club?</h2>
                 <p class="text-zinc-400 text-sm font-light leading-relaxed max-w-xl">Treci pe la recepția sălii din aripa dreaptă. Îți spunem orarul, abonamentele și dacă e loc la antrenor.</p>
             </div>
-            <a href="{{ url('/') }}" class="inline-flex items-center justify-center px-5 py-3 border border-blue-400/40 text-blue-400 text-xs font-bold uppercase tracking-widest hover:bg-blue-400/10 transition-colors shrink-0">
-                ← Înapoi la complex
-            </a>
+            <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <a href="{{ route('bookings.create', ['wing' => 'fitness']) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-400 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                    Programează Sesiune &rarr;
+                </a>
+                <a href="{{ url('/') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 border border-blue-400/40 text-blue-400 text-xs font-bold uppercase tracking-widest hover:bg-blue-400/10 transition-colors">
+                    ← Înapoi
+                </a>
+            </div>
         </div>
     </section>
 @endsection
