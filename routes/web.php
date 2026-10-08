@@ -6,7 +6,37 @@ use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 
+
 use App\Models\Admin;
+
+
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Admin;
+
+Route::get('/reset-complet-db', function () {
+    try {
+        // 1. Șterge absolut tot din baza de date și rulează migrările proaspete de la zero
+        Artisan::call('migrate:fresh', ['--force' => true]);
+        
+        // 2. Creează direct contul de admin cu coloanele implicite corecte
+        Admin::create([
+            'name'     => 'Admin Sanctuary',
+            'email'    => 'admin@sanctuary.ro',
+            'password' => Hash::make('test'), // Parolă criptată prin algoritmul Bcrypt
+        ]);
+        
+        return "✅ RECONSTRUCȚIE REUȘITĂ!<br>
+                1. Toate tabelele și coloanele au fost create de la zero.<br>
+                2. Contul de admin a fost creat cu succes.<br><br>
+                Încearcă acum să te loghezi în panou cu: <b>admin@sanctuary.ro</b> și parola <b>sanctuary2026</b>.";
+                
+    } catch (\Exception $e) {
+        return '🔴 Eroare critică la reconstrucție: ' . $e->getMessage();
+    }
+});
+
+
 
 Route::get('/vezi-admin-live', function () {
     // Căutăm primul admin creat în baza de date
