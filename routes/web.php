@@ -10,20 +10,30 @@ use Illuminate\Support\Facades\Artisan;
 
 
 
-// Această rută va forța Render să execute fișierul tău AdminSeeder din browser
+use App\Models\Admin;
+use Illuminate\Support\Facades\Artisan;
+
 Route::get('/migreaza-admin-acum', function () {
     try {
-        // Rulăm mai întâi migrările în caz că lipsește vreun tabel
-        Artisan::call('migrate', ['--force' => true]);
-        
-        // Executăm direct seeder-ul tău pentru admin
+        // 1. Rulăm DOAR introducerea datelor (seeder-ul), deoarece tabelele există deja
         Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
         
-        return 'Contul de admin a fost creat cu succes pe Render! Răspuns server: <br><pre>' . Artisan::output() . '</pre>';
+        // 2. Căutăm administratorul în baza de date ca să verificăm dacă s-a inserat
+        $admin = Admin::where('email', 'admin@sanctuary.ro')->first();
+        
+        if ($admin) {
+            return "✅ SUCCES COMPLET! Administratorul a fost salvat și verificat direct în baza online.<br>
+                    Nume: {$admin->name}<br>
+                    Email: {$admin->email}";
+        }
+        
+        return "⚠️ Seeder-ul a rulat, dar contul NU a fost găsit. Verifică valorile implicite din fișierul AdminSeeder.php.";
+
     } catch (\Exception $e) {
-        return 'Eroare la executare: ' . $e->getMessage();
+        return '🔴 Eroare la populare: ' . $e->getMessage();
     }
 });
+
 
 //euu
 
