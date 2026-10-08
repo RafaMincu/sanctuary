@@ -4,6 +4,29 @@ use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+
+//euu
+
+
+
+// Această rută va forța Render să execute fișierul tău AdminSeeder din browser
+Route::get('/migreaza-admin-acum', function () {
+    try {
+        // Rulăm mai întâi migrările în caz că lipsește vreun tabel
+        Artisan::call('migrate', ['--force' => true]);
+        
+        // Executăm direct seeder-ul tău pentru admin
+        Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+        
+        return 'Contul de admin a fost creat cu succes pe Render! Răspuns server: <br><pre>' . Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Eroare la executare: ' . $e->getMessage();
+    }
+});
+
+//euu
+
 
 //euu Rulează direct seeder-ul de admin din browser printr-o singură comandă
 Route::get('/migreaza-admin', fn() => Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]) ? 'Eroare' : 'Contul de admin a fost injectat cu succes pe Render!');
