@@ -74,13 +74,15 @@ class AdminChatController extends Controller
         return ChatMessage::select(
                 'session_id',
                 DB::raw('MAX(created_at) as last_at'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('MIN(sender_name) as sender_name')
+                DB::raw('COUNT(*) as total')
             )
             ->groupBy('session_id')
             ->orderByDesc('last_at')
             ->get()
             ->map(function ($row) {
+                // Numele vizitatorului: doar mesajele lui (from_user=true).
+                // Luăm ULTIMUL nume setat de vizitator (nu MIN alfabetic care
+                // ar putea returna numele adminului din răspunsuri).
                 // Mesaje necitite REALE: trimise de vizitator și încă nevăzute de admin.
                 $unread = ChatMessage::where('session_id', $row->session_id)
                     ->where('from_user', true)
@@ -91,10 +93,12 @@ class AdminChatController extends Controller
                     ->orderByDesc('created_at')
                     ->value('message');
 
+                $guestLabel = 'Vizitator #' . strtolower(substr((string) preg_replace('/[^A-Za-z0-9]/', '', (string) $row->session_id), 0, 4));
+
                 return [
                     'session_id'   => $row->session_id,
-                    'sender_name'  => $row->sender_name ?? 'Vizitator',
-                    'sender_initial' => strtoupper(substr($row->sender_name ?? 'V', 0, 1)),
+                    'sender_name'  => $guestLabel,
+                    'sender_initial' => 'V',
                     'guest_online' => (bool) Cache::get('chat:guest_online:' . $row->session_id, false),
                     'last_at'      => $row->last_at,
                     'total'        => $row->total,
@@ -149,7 +153,7 @@ class AdminChatController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        $senderName = $messages->firstWhere('from_user', true)?->sender_name ?? 'Vizitator';
+        $senderName = 'Vizitator #' . strtolower(substr(preg_replace('/[^A-Za-z0-9]/', '', $sessionId), 0, 4));
 
         // Prezența vizitatorului la prima încărcare (apoi se actualizează live la poll).
         $guestOnline = (bool) Cache::get('chat:guest_online:' . $sessionId, false);

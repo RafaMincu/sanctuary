@@ -40,11 +40,11 @@
 
         <!-- Listă conversații (pasă la rând, fără reîncărcare) -->
         <div class="bg-[#0b0b0e]/80 border border-zinc-900 rounded-sm backdrop-blur-xl overflow-hidden">
-            <div class="hidden sm:flex items-center gap-4 px-5 py-3 border-b border-zinc-900 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
-                <div class="w-48 shrink-0">Vizitator</div>
-                <div class="flex-1">Ultimul Mesaj</div>
-                <div class="w-24 shrink-0">Mesaje</div>
-                <div class="w-32 shrink-0 text-right">Ultima Activitate</div>
+            <div class="hidden sm:grid items-center gap-4 px-5 py-3 border-b border-zinc-900 text-[10px] font-mono uppercase tracking-wider text-zinc-500" style="grid-template-columns:210px minmax(0,1fr) 100px 140px;">
+                <div>Vizitator</div>
+                <div>Ultimul Mesaj</div>
+                <div>Mesaje</div>
+                <div class="text-right">Ultima Activitate</div>
             </div>
 
             <div id="conversation-list">
@@ -60,8 +60,8 @@
                     @foreach ($conversations as $conv)
                         <a href="{{ route('admin.chat.show', $conv['session_id']) }}"
                            data-session="{{ $conv['session_id'] }}"
-                           class="flex items-center gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">
-                            <div class="w-48 shrink-0 flex items-center gap-3 min-w-0">
+                           class="grid grid-cols-1 sm:grid-cols-[210px_minmax(0,1fr)_100px_140px] items-center gap-x-4 gap-y-3 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group overflow-hidden">
+                            <div class="flex items-center gap-3 min-w-0 overflow-hidden">
                                 {{-- Avatar cu inițiala + dot prezență --}}
                                 <div class="relative w-8 h-8 shrink-0">
                                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">
@@ -73,28 +73,28 @@
                                         <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-zinc-600 border-2 border-[#0b0b0e]"></span>
                                     @endif
                                 </div>
-                                <div class="min-w-0">
-                                    <div class="flex items-center gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex min-w-0 items-center gap-2">
                                         <span class="text-white text-sm font-semibold group-hover:text-cyan-300 transition-colors truncate">{{ $conv['sender_name'] }}</span>
-                                <span data-unread-badge
-                                      class="shrink-0 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full"
-                                      style="{{ $conv['unread'] > 0 ? '' : 'display:none;' }}">{{ $conv['unread'] }}</span>
-                            </div>
+                                        <span data-unread-badge
+                                              class="shrink-0 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full"
+                                              style="{{ $conv['unread'] > 0 ? '' : 'display:none;' }}">{{ $conv['unread'] }}</span>
+                                    </div>
                                     <div class="flex items-center gap-1.5 mt-0.5">
                                         <span data-online-dot class="w-1.5 h-1.5 rounded-full {{ ($conv['guest_online'] ?? false) ? 'bg-emerald-400' : 'bg-zinc-600' }}"></span>
                                         <span data-online-text class="text-[11px] font-mono {{ ($conv['guest_online'] ?? false) ? 'text-emerald-400' : 'text-zinc-600' }}">{{ ($conv['guest_online'] ?? false) ? 'Online' : 'Offline' }}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 min-w-0 text-zinc-400 text-xs truncate">
+                            <div class="min-w-0 max-w-full overflow-hidden text-zinc-400 text-xs truncate whitespace-nowrap">
                                 <span data-last-message>{{ $conv['last_message'] }}</span>
                             </div>
-                            <div class="w-24 shrink-0">
+                            <div class="justify-self-start sm:justify-self-center">
                                 <span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">
                                     {{ $conv['total'] }} mesaj{{ $conv['total'] > 1 ? 'e' : '' }}
                                 </span>
                             </div>
-                            <div class="w-32 shrink-0 text-right text-zinc-500 text-[11px] font-mono">
+                            <div class="text-left sm:text-right text-zinc-500 text-[11px] font-mono whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($conv['last_at'])->diffForHumans() }}
                             </div>
                         </a>
@@ -164,11 +164,11 @@
                             if (row) {
                                 const initial = (row.sender_name || 'V').charAt(0).toUpperCase();
                                 appendRow(
-                                    '<a href="' + showBase + row.session_id + '" data-session="' + row.session_id + '" class="flex items-center gap-4 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group">' +
-                                    '<div class="w-48 shrink-0 flex items-center gap-3 min-w-0">' +
+                                    '<a href="' + showBase + row.session_id + '" data-session="' + row.session_id + '" class="grid grid-cols-1 sm:grid-cols-[210px_minmax(0,1fr)_100px_140px] items-center gap-x-4 gap-y-3 px-5 py-4 border-b border-zinc-900/60 last:border-0 hover:bg-cyan-500/5 transition-colors group overflow-hidden">' +
+                                    '<div class="flex items-center gap-3 min-w-0 overflow-hidden">' +
                                     '<div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-xs">' + initial + '</div>' +
-                                    '<div class="min-w-0">' +
-                                    '<div class="flex items-center gap-2">' +
+                                    '<div class="min-w-0 flex-1">' +
+                                    '<div class="flex min-w-0 items-center gap-2">' +
                                     '<span class="text-white text-sm font-semibold group-hover:text-cyan-300 transition-colors truncate">' + row.sender_name + '</span>' +
                                     '<span data-unread-badge class="shrink-0 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full" style="' + (row.unread > 0 ? '' : 'display:none;') + '">' + row.unread + '</span>' +
                                     '</div>' +
@@ -178,9 +178,9 @@
                                     '</div>' +
                                     '</div>' +
                                     '</div>' +
-                                    '<div class="flex-1 min-w-0 text-zinc-400 text-xs truncate"><span data-last-message>' + (row.last_message || '—') + '</span></div>' +
-                                    '<div class="w-24 shrink-0"><span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">' + row.total + ' mesaje</span></div>' +
-                                    '<div class="w-32 shrink-0 text-right text-zinc-500 text-[11px] font-mono">—</div>' +
+                                    '<div class="min-w-0 max-w-full overflow-hidden text-zinc-400 text-xs truncate whitespace-nowrap"><span data-last-message>' + (row.last_message || '—') + '</span></div>' +
+                                    '<div class="justify-self-start sm:justify-self-center"><span class="inline-block px-2 py-0.5 text-[10px] font-mono rounded-sm bg-zinc-900 text-zinc-300 border border-zinc-800">' + row.total + ' mesaje</span></div>' +
+                                    '<div class="text-left sm:text-right text-zinc-500 text-[11px] font-mono whitespace-nowrap">—</div>' +
                                     '</a>'
                                 );
                             }
