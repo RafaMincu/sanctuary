@@ -9,22 +9,15 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
 // Rută temporară pentru crearea tabelelor în PostgreSQL
-Route::get('/init-baza-date-secreta', function () {
-    try {
-        Artisan::call('migrate', ['--force' => true]);
-        return 'Tabelele au fost create cu succes! Răspuns: <br><pre>' . Artisan::output() . '</pre>';
-    } catch (\Exception $e) {
-        return 'Eroare la migrare: ' . $e->getMessage();
-    }
-});
+use Illuminate\Support\Facades\Artisan;
 
-// Rută temporară pentru repararea URL-urilor și curățarea cache-ului
 Route::get('/curata-cache-secret', function () {
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
-    return 'Toate cache-urile din Laravel au fost șterse cu succes!';
+    return 'Cache-ul a fost șters! URL-urile au fost actualizate pe HTTPS.';
 });
+
 //eu
 
 // Live chat API routes (public – works for guests via session + authenticated users)
