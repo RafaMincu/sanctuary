@@ -8,15 +8,24 @@ use Illuminate\Support\Facades\Route;
 //eu
 use Illuminate\Support\Facades\Artisan;
 
-// Rută temporară pentru crearea tabelelor în PostgreSQL
-use Illuminate\Support\Facades\Artisan;
+// Rută temporară pentru crearea automată a tabelelor în PostgreSQL pe Render
+Route::get('/init-baza-date-secreta', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return 'Tabelele au fost create cu succes în PostgreSQL! Răspuns server: <br><pre>' . Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return 'Eroare la migrare: ' . $e->getMessage();
+    }
+});
 
+// Rută temporară pentru curățarea cache-ului
 Route::get('/curata-cache-secret', function () {
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
-    return 'Cache-ul a fost șters! URL-urile au fost actualizate pe HTTPS.';
+    return 'Cache-ul a fost curățat complet!';
 });
+
 
 //eu
 
