@@ -46,6 +46,11 @@ class ChatController extends Controller
                 ->update(['read_at' => now()]);
         }
 
+        // Prezența vizitatorului pentru panoul admin (oglinda lui chat:admin_online):
+        // reînnoită la fiecare poll al widget-ului. Dacă vizitatorul închide
+        // browserul, expiră singură prin TTL → „Offline” în panou.
+        Cache::put('chat:guest_online:' . $sessionKey, true, now()->addSeconds(15));
+
         // Vizitatorul scrie → indicator pentru panoul admin (dispare imediat
         // la următorul poll fără typing, altfel stă max. 5s prin TTL).
         if ($request->query('typing')) {
@@ -77,6 +82,8 @@ class ChatController extends Controller
             'messages'     => $messages,
             'unread'       => $unread,
             'admin_typing' => (bool) Cache::get('chat:typing:admin:' . $sessionKey, false),
+            // Prezența vizitatorului → header-ul panoului admin: „Online" / „Offline".
+            'guest_online' => true,
             // Prezența adminului → header-ul widget-ului: „● Online” / „● Offline”.
             'admin_online' => (bool) Cache::get('chat:admin_online', false),
             // Numele adminului activ → „Ana scrie...” / „Online • Ana”.

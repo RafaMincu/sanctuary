@@ -13,13 +13,20 @@
                    class="w-9 h-9 shrink-0 rounded-sm border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-cyan-400 hover:border-cyan-500/40 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </a>
-                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-sm">
-                    {{ strtoupper(substr($senderName, 0, 1)) }}
+                <div class="relative w-9 h-9 shrink-0">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-bold text-sm">
+                        {{ strtoupper(substr($senderName, 0, 1)) }}
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-[#050507]"
+                          :class="guestOnline ? 'bg-emerald-400' : 'bg-zinc-600'"></span>
                 </div>
                 <div>
                     <h1 class="text-white font-bold leading-none">{{ $senderName }}</h1>
-                    <p class="text-emerald-400 text-xs mt-1 font-mono">
-                        ● Vizitator activ <span class="text-zinc-600">// {{ $sessionId }}</span>
+                    <p class="text-xs mt-1 font-mono flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full"
+                              :class="guestOnline ? 'bg-emerald-400' : 'bg-zinc-600'"></span>
+                        <span x-text="guestOnline ? 'Online' : 'Offline'"
+                              :class="guestOnline ? 'text-emerald-400' : 'text-zinc-600'"></span>
                     </p>
                 </div>
             </div>
@@ -111,6 +118,18 @@
                         </div>
                     </div>
                 </template>
+                {{-- Indicator: vizitatorul scrie... (oglinda celui de la vizitator) --}}
+                <div x-show="guestTyping"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="px-4 pb-1 text-[11px] italic animate-pulse"
+                     style="color: #34d399;">
+                    <span>{{ $senderName }} scrie...</span>
+                </div>
             </div>
 
             {{-- Reply Form --}}
@@ -118,7 +137,7 @@
                 <form @submit.prevent="sendReply()" class="flex items-end gap-2">
                     <textarea
                         x-model="newMessage"
-                        @input="lastTypeAt = Date.now()"
+                        @input="lastTypeAt = Date.now(); pingTyping()"
                         @keydown.enter.prevent="if (!$event.shiftKey) { sendReply(); }"
                         rows="1"
                         placeholder="Scrie un răspuns... (Enter pentru trimitere, Shift+Enter pentru rând nou)"
@@ -140,7 +159,7 @@
         </div>
 
         <p class="text-center text-zinc-600 text-[11px] font-mono mt-5">
-            Mesajele se actualizează automat la fiecare 2.5 secunde
+            Mesajele se actualizează automat la fiecare 2 secunde
         </p>
     </section>
 
@@ -152,9 +171,15 @@
                 sending: false,
                 fetching: false,
                 guestTyping: false,
+                guestOnline: {{ $guestOnline ? 'true' : 'false' }},
                 lastId: 0,
                 booted: false,
                 lastTypeAt: 0,
+                lastPing: 0,
+                pingTyping() {
+                    const now = Date.now();
+                    if (now - this.lastPing > 1200) { this.lastPing = now; this.fetchMessages(); }
+                },
 
                 minimize() {
                     const box = document.querySelector('.minimized-chat');
@@ -195,6 +220,7 @@
                         this.booted = true;
                         this.messages = msgs;
                         this.guestTyping = !!data.guest_typing;
+                        this.guestOnline = !!data.guest_online;
                         this.$nextTick(() => {
                             if (box && nearBottom) box.scrollTop = box.scrollHeight;
                         });
@@ -227,7 +253,7 @@
 
                 init() {
                     this.fetchMessages();
-                    setInterval(() => this.fetchMessages(), 2500);
+                    setInterval(() => this.fetchMessages(), 2000);
                 }
             };
         }

@@ -149,7 +149,10 @@ class AdminChatController extends Controller
 
         $senderName = $messages->firstWhere('from_user', true)?->sender_name ?? 'Vizitator';
 
-        return view('admin.chat.show', compact('messages', 'sessionId', 'senderName'));
+        // Prezența vizitatorului la prima încărcare (apoi se actualizează live la poll).
+        $guestOnline = (bool) Cache::get('chat:guest_online:' . $sessionId, false);
+
+        return view('admin.chat.show', compact('messages', 'sessionId', 'senderName', 'guestOnline'));
     }
 
     /**
@@ -189,6 +192,9 @@ class AdminChatController extends Controller
         return response()->json([
             'messages'    => $messages,
             'guest_typing' => (bool) Cache::get('chat:typing:guest:' . $sessionId, false),
+            // Prezența vizitatorului → header-ul panoului: „Online" / „Offline"
+            // (oglinda lui chat:admin_online din widget).
+            'guest_online' => (bool) Cache::get('chat:guest_online:' . $sessionId, false),
         ]);
     }
 

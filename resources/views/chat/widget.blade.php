@@ -105,6 +105,11 @@
         lastId: 0,
         booted: false,
         lastTypeAt: 0,
+        lastPing: 0,
+        pingTyping() {
+            const now = Date.now();
+            if (now - this.lastPing > 1200) { this.lastPing = now; this.fetchMessages(); }
+        },
         fetchMessages() {
             const params = [];
             if (this.open) params.push('open=1');
@@ -191,14 +196,6 @@
             </button>
         </div>
 
-        {{-- Indicator: adminul scrie... --}}
-        <div x-show="adminTyping"
-             x-transition:enter="transition ease-out duration-150"
-             x-transition:leave="transition ease-in duration-150"
-             class="px-4 pt-2 text-[11px] text-emerald-300 italic animate-pulse">
-            Sanctuary Support scrie...
-        </div>
-
         {{-- Messages --}}
         <div x-ref="messageBox" class="flex-1 overflow-y-auto p-4 space-y-3" style="min-height: 280px; max-height: 320px; scrollbar-width: thin; scrollbar-color: rgba(34,211,238,0.2) transparent;">
             <template x-if="messages.length === 0">
@@ -238,6 +235,18 @@
                     </div>
                 </div>
             </template>
+            {{-- Indicator: adminul scrie... (jos, identic ca la admin) --}}
+            <div x-show="adminTyping"
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="px-4 pb-1 text-[11px] italic animate-pulse"
+                 style="color: #34d399;">
+                <span>Sanctuary Support scrie...</span>
+            </div>
         </div>
 
         {{-- Input --}}
@@ -246,7 +255,7 @@
                 <input
                     type="text"
                     x-model="newMessage"
-                    @input="lastTypeAt = Date.now()"
+                    @input="lastTypeAt = Date.now(); pingTyping()"
                     @keydown.enter.prevent="sendMessage()"
                     placeholder="Scrie un mesaj..."
                     maxlength="1000"
