@@ -8,22 +8,22 @@ use Illuminate\Support\Facades\Route;
 //eu
 use Illuminate\Support\Facades\Artisan;
 
-// Rută pentru rularea migrărilor (crearea tabelelor)
+// Rută temporară pentru crearea tabelelor în PostgreSQL
 Route::get('/init-baza-date-secreta', function () {
     try {
         Artisan::call('migrate', ['--force' => true]);
-        return 'Tabelele au fost create cu succes! Răspuns server: ' . Artisan::output();
+        return 'Tabelele au fost create cu succes! Răspuns: <br><pre>' . Artisan::output() . '</pre>';
     } catch (\Exception $e) {
         return 'Eroare la migrare: ' . $e->getMessage();
     }
 });
 
-// Rută pentru curățarea cache-ului (repară URL-urile)
+// Rută temporară pentru repararea URL-urilor și curățarea cache-ului
 Route::get('/curata-cache-secret', function () {
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
-    return 'Cache-ul a fost curățat complet!';
+    return 'Toate cache-urile din Laravel au fost șterse cu succes!';
 });
 //eu
 
