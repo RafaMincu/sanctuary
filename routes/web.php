@@ -7,53 +7,27 @@ use Illuminate\Support\Facades\Route;
 
 
 
-use App\Models\Admin;
-
-
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Admin;
 
-
-Route::get('/reset-complet-db', function () {
+// Rută temporară pentru a ocoli complet blocajele de pe Render Free
+Route::get('/executa-tot-baza-date', function () {
     try {
-        // 1. Șterge absolut tot din baza de date și rulează migrările proaspete de la zero
-        Artisan::call('migrate:fresh', ['--force' => true]);
-        
-        // 2. Creează direct contul de admin cu coloanele implicite corecte
-        Admin::create([
-            'name'     => 'Admin Sanctuary',
-            'email'    => 'admin@sanctuary.ro',
-            'password' => Hash::make('sanctuary2026'), // Parolă criptată prin algoritmul Bcrypt
-        ]);
-        
-        return "✅ RECONSTRUCȚIE REUȘITĂ!<br>
-                1. Toate tabelele și coloanele au fost create de la zero.<br>
-                2. Contul de admin a fost creat cu succes.<br><br>
-                Încearcă acum să te loghezi în panou cu: <b>admin@sanctuary.ro</b> și parola <b>sanctuary2026</b>.";
-                
+        // 1. Curățăm cache-ul Laravel ca să fim siguri că nu e nimic blocat
+        Artisan::call('route:clear');
+        Artisan::call('config:clear');
+
+        // 2. Forțăm rularea migrărilor (crearea tabelelor lipsă precum 'admins')
+        Artisan::call('migrate', ['--force' => true]);
+
+        // 3. Forțăm rularea seeder-ului pentru a introduce contul de admin criptat
+        Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+
+        return '✅ REUȘITĂ! Tabela admins a fost creată și adminul a fost injectat în baza de date PostgreSQL de pe Render!';
     } catch (\Exception $e) {
-        return '🔴 Eroare critică la reconstrucție: ' . $e->getMessage();
+        return '🔴 Eroare la executare: ' . $e->getMessage();
     }
 });
 
-
-
-
-Route::get('/vezi-admin-live', function () {
-    // Căutăm primul admin creat în baza de date
-    $admin = Admin::first();
-
-    if (!$admin) {
-        return "❌ Nu există niciun cont în tabela 'admins' pe serverul Render!";
-    }
-
-    return "<h3>Cont găsit în baza live:</h3>
-            Nume: <b>{$admin->name}</b><br>
-            Email: <b>{$admin->email}</b><br>
-            Parolă în baza de date (Hash criptat): <b>{$admin->password}</b><br><br>
-            <i>Notă: Dacă parola nu începe cu '$2y$' sau '$2b$', înseamnă că NU este criptată, iar Laravel nu te va lăsa să te loghezi!</i>";
-});
 
 
 use App\Models\Admin;
