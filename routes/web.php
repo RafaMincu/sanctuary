@@ -5,6 +5,9 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
+//euu Rulează direct seeder-ul de admin din browser printr-o singură comandă
+Route::get('/migreaza-admin', fn() => Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]) ? 'Eroare' : 'Contul de admin a fost injectat cu succes pe Render!');
+
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
