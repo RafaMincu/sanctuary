@@ -24,7 +24,7 @@ class AdminSeeder extends Seeder
             ['email' => env('ADMIN_EMAIL', 'admin@sanctuary.ro')],
             [
                 'name'     => env('ADMIN_NAME', 'Admin'),
-                'password' => env('ADMIN_CHAT_PASSWORD', 'sanctuary2026'),
+                'password' => env('ADMIN_CHAT_PASSWORD', 'test'),
             ]
         );
     }
