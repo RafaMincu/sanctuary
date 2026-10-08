@@ -5,6 +5,28 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
+//eu
+use Illuminate\Support\Facades\Artisan;
+
+// Rută pentru rularea migrărilor (crearea tabelelor)
+Route::get('/init-baza-date-secreta', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return 'Tabelele au fost create cu succes! Răspuns server: ' . Artisan::output();
+    } catch (\Exception $e) {
+        return 'Eroare la migrare: ' . $e->getMessage();
+    }
+});
+
+// Rută pentru curățarea cache-ului (repară URL-urile)
+Route::get('/curata-cache-secret', function () {
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return 'Cache-ul a fost curățat complet!';
+});
+//eu
+
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
