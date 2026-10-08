@@ -5,35 +5,6 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
-
-
-// =========================================================================
-// RUTĂ PENTRU INJECTAREA INSTANTANEE A CONTULUI DE ADMIN (IGNORĂ MIGRĂRILE)
-// =========================================================================
-Route::get('/executa-tot-baza-date', function () {
-    try {
-        // 1. Ștergem orice înregistrare anterioară defectă cu acest email
-        \App\Models\Admin::where('email', 'admin@sanctuary.ro')->delete();
-
-        // 2. Creăm utilizatorul scriind datele direct în cod, forțând criptarea Bcrypt
-        $admin = \App\Models\Admin::create([
-            'name'     => 'Admin Sanctuary',
-            'email'    => 'admin@sanctuary.ro',
-            'password' => \Illuminate\Support\Facades\Hash::make('test'), // Parola criptată corect
-        ]);
-
-        return "✅ UTILIZATORUL A FOST CREAT CU SUCCES ÎN BAZA LIVE RENDERE!<br><br>
-                Email Admin: <b>{$admin->email}</b><br>
-                Parolă Admin: <b>test</b><br><br>
-                Încearcă acum să te loghezi în panoul de chat cu aceste date exacte!";
-
-    } catch (\Exception $e) {
-        return '🔴 Eroare critică la scriere: ' . $e->getMessage();
-    }
-});
-
-
-
 // Live chat API routes (public – works for guests via session + authenticated users)
 Route::get('/api/chat/messages', [ChatController::class, 'index'])->name('chat.messages');
 Route::post('/api/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
