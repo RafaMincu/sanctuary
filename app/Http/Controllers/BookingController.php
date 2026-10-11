@@ -49,6 +49,7 @@ class BookingController extends Controller
         return view('bookings.create', [
             'selectedWing' => $selectedWing,
             'servicesByWing' => $this->servicesByWing,
+            'user' => $request->user(),
         ]);
     }
 
@@ -60,11 +61,12 @@ class BookingController extends Controller
         $bookingNumber = Booking::generateBookingNumber();
 
         $booking = Booking::create([
+            'user_id' => $request->user()?->id,
             'booking_number' => $bookingNumber,
             'wing' => $request->input('wing'),
             'service_type' => $request->input('service_type'),
-            'client_name' => $request->input('client_name'),
-            'client_email' => $request->input('client_email'),
+            'client_name' => $request->user()?->name ?? $request->input('client_name'),
+            'client_email' => $request->user()?->email ?? $request->input('client_email'),
             'client_phone' => $request->input('client_phone'),
             'scheduled_at' => $request->input('scheduled_at'),
             'notes' => $request->input('notes'),

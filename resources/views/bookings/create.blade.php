@@ -172,7 +172,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="client_name" class="block text-[11px] font-mono text-zinc-400 uppercase mb-1">Nume & Prenume <span class="text-rose-400">*</span></label>
-                            <input type="text" id="client_name" name="client_name" required value="{{ old('client_name') }}" placeholder="Alex Popescu" class="w-full bg-[#060608] border border-zinc-800 text-zinc-200 text-sm px-4 py-3 rounded-sm focus:outline-none focus:border-cyan-400">
+                            <input type="text" id="client_name" name="client_name" required value="{{ old('client_name', $user?->name) }}" placeholder="Alex Popescu" {{ $user ? 'readonly' : '' }} class="w-full bg-[#060608] border border-zinc-800 text-zinc-200 text-sm px-4 py-3 rounded-sm focus:outline-none focus:border-cyan-400 {{ $user ? 'opacity-70 cursor-not-allowed' : '' }}">
                         </div>
 
                         <div>
@@ -182,7 +182,7 @@
 
                         <div>
                             <label for="client_email" class="block text-[11px] font-mono text-zinc-400 uppercase mb-1">Adresă de Email <span class="text-rose-400">*</span></label>
-                            <input type="email" id="client_email" name="client_email" required value="{{ old('client_email') }}" placeholder="alex@exemplu.ro" class="w-full bg-[#060608] border border-zinc-800 text-zinc-200 text-sm px-4 py-3 rounded-sm focus:outline-none focus:border-cyan-400">
+                            <input type="email" id="client_email" name="client_email" required value="{{ old('client_email', $user?->email) }}" placeholder="alex@exemplu.ro" {{ $user ? 'readonly' : '' }} class="w-full bg-[#060608] border border-zinc-800 text-zinc-200 text-sm px-4 py-3 rounded-sm focus:outline-none focus:border-cyan-400 {{ $user ? 'opacity-70 cursor-not-allowed' : '' }}">
                         </div>
 
                         <div>

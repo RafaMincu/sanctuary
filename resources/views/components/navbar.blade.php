@@ -37,6 +37,16 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
                 Programări
             </a>
+            @auth
+                <a href="{{ route('account.dashboard') }}" class="transition-colors text-cyan-300 hover:text-cyan-200">Contul meu</a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="text-zinc-500 hover:text-rose-300 transition-colors">Ieșire</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="transition-colors text-zinc-400 hover:text-cyan-300">Intră</a>
+                <a href="{{ route('register') }}" class="px-3 py-2 bg-gradient-to-r from-cyan-400 to-emerald-400 text-black hover:opacity-90 transition-opacity">Cont nou</a>
+            @endauth
         </nav>
 
         <!-- Right Side: Status Badge + Mobile Toggle -->
@@ -84,6 +94,16 @@
            class="block py-2 text-xs uppercase tracking-widest font-bold {{ $isBooking ? 'text-cyan-400 pl-2 border-l-2 border-cyan-400' : 'text-zinc-300 hover:text-cyan-400' }}">
             Programări & Rezervări
         </a>
+        @auth
+            <a href="{{ route('account.dashboard') }}" class="block py-2 text-xs uppercase tracking-widest font-bold text-cyan-300 hover:text-cyan-200">Contul meu</a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="block py-2 text-xs uppercase tracking-widest font-bold text-zinc-400 hover:text-rose-300">Deconectare</button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="block py-2 text-xs uppercase tracking-widest font-bold text-zinc-300 hover:text-cyan-300">Autentificare</a>
+            <a href="{{ route('register') }}" class="block py-2 text-xs uppercase tracking-widest font-bold text-emerald-400 hover:text-emerald-300">Creează cont</a>
+        @endauth
         
         <div class="pt-3 border-t border-zinc-900/80 flex items-center justify-between text-[11px] font-mono text-zinc-500">
             <span>STATUS ECOSISTEM:</span>

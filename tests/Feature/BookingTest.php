@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -154,6 +155,12 @@ class BookingTest extends TestCase
         $response->assertSee('Confirmată');
     }
 
+    public function test_guest_is_redirected_from_bookings_dashboard(): void
+    {
+        $this->get('/programari/administrare')
+            ->assertRedirect(route('admin.login'));
+    }
+
     public function test_staff_can_view_bookings_dashboard(): void
     {
         Booking::create([
@@ -167,7 +174,8 @@ class BookingTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->get('/programari/administrare');
+        $response = $this->withSession(['admin_logged_in' => true])
+            ->get('/programari/administrare');
 
         $response->assertStatus(200);
         $response->assertSee('Gestiune Programări');
@@ -188,12 +196,36 @@ class BookingTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->patch("/programari/{$booking->id}/status", [
+        $response = $this->withSession(['admin_logged_in' => true])
+            ->patch("/programari/{$booking->id}/status", [
             'status' => 'confirmed',
         ]);
 
         $response->assertSessionHas('success');
         $booking->refresh();
         $this->assertEquals('confirmed', $booking->status);
+    }
+
+    public function test_authenticated_client_booking_is_linked_to_their_account(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Client Autentificat',
+            'email' => 'client@example.com',
+        ]);
+
+        $this->actingAs($user)->post('/programari', [
+            'wing' => 'fitness',
+            'service_type' => 'evaluare',
+            'client_name' => 'Nume Ignorat',
+            'client_email' => 'alt-email@example.com',
+            'client_phone' => '0711223344',
+            'scheduled_at' => now()->addDays(2)->format('Y-m-d H:i:s'),
+        ]);
+
+        $this->assertDatabaseHas('bookings', [
+            'user_id' => $user->id,
+            'client_name' => 'Client Autentificat',
+            'client_email' => 'client@example.com',
+        ]);
     }
 }

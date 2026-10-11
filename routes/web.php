@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminChatController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
@@ -41,10 +42,25 @@ Route::get('/fitness', function () {
     return view('fitness');
 })->name('fitness');
 
+// Conturi pentru clienți.
+Route::middleware('guest')->group(function () {
+    Route::get('/autentificare', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/autentificare', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.store');
+    Route::get('/inregistrare', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/inregistrare', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/contul-meu', [AuthController::class, 'dashboard'])->name('account.dashboard');
+    Route::post('/deconectare', [AuthController::class, 'logout'])->name('logout');
+});
+
 // Sanctuary Unified Bookings System
 Route::get('/programari', [BookingController::class, 'create'])->name('bookings.create');
 Route::post('/programari', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/programari/verificare', [BookingController::class, 'lookup'])->name('bookings.lookup');
-Route::get('/programari/administrare', [BookingController::class, 'index'])->name('bookings.index');
-Route::patch('/programari/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.status');
+Route::middleware('admin')->group(function () {
+    Route::get('/programari/administrare', [BookingController::class, 'index'])->name('bookings.index');
+    Route::patch('/programari/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.status');
+});
 Route::get('/programari/{booking_number}', [BookingController::class, 'show'])->name('bookings.show');

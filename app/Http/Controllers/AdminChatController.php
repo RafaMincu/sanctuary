@@ -80,9 +80,10 @@ class AdminChatController extends Controller
             ->orderByDesc('last_at')
             ->get()
             ->map(function ($row) {
-                // Numele vizitatorului: doar mesajele lui (from_user=true).
-                // Luăm ULTIMUL nume setat de vizitator (nu MIN alfabetic care
-                // ar putea returna numele adminului din răspunsuri).
+                // Numele clientului: luăm ultimul mesaj trimis de el, nu un
+                // răspuns al adminului din aceeași conversație.
+                $senderName = $this->senderNameForSession($row->session_id);
+
                 // Mesaje necitite REALE: trimise de vizitator și încă nevăzute de admin.
                 $unread = ChatMessage::where('session_id', $row->session_id)
                     ->where('from_user', true)
@@ -93,12 +94,12 @@ class AdminChatController extends Controller
                     ->orderByDesc('created_at')
                     ->value('message');
 
-                $guestLabel = 'Vizitator #' . strtolower(substr((string) preg_replace('/[^A-Za-z0-9]/', '', (string) $row->session_id), 0, 4));
+                $displayName = $senderName ?: $this->guestLabel($row->session_id);
 
                 return [
                     'session_id'   => $row->session_id,
-                    'sender_name'  => $guestLabel,
-                    'sender_initial' => 'V',
+                    'sender_name'  => $displayName,
+                    'sender_initial' => mb_strtoupper(mb_substr($displayName, 0, 1)),
                     'guest_online' => (bool) Cache::get('chat:guest_online:' . $row->session_id, false),
                     'last_at'      => $row->last_at,
                     'total'        => $row->total,
@@ -153,12 +154,42 @@ class AdminChatController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        $senderName = 'Vizitator #' . strtolower(substr(preg_replace('/[^A-Za-z0-9]/', '', $sessionId), 0, 4));
+        $senderName = $this->senderNameForSession($sessionId) ?: $this->guestLabel($sessionId);
 
         // Prezența vizitatorului la prima încărcare (apoi se actualizează live la poll).
         $guestOnline = (bool) Cache::get('chat:guest_online:' . $sessionId, false);
 
         return view('admin.chat.show', compact('messages', 'sessionId', 'senderName', 'guestOnline'));
+    }
+
+    /**
+     * Returnează numele ultimului mesaj trimis de client pentru conversație.
+     */
+    private function senderNameForSession(string $sessionId): ?string
+    {
+        $name = ChatMessage::where('session_id', $sessionId)
+            ->where('from_user', true)
+            ->whereNotNull('sender_name')
+            ->where('sender_name', '!=', '')
+            ->orderByDesc('created_at')
+            ->value('sender_name');
+
+        // Placeholder-ul generic „Vizitator" (fără hash) indică faptul că
+        // trebuie folosită eticheta unică generată din sesiune.
+        if ($name === 'Vizitator') {
+            return null;
+        }
+
+        return $name;
+    }
+
+    private function guestLabel(string $sessionId): string
+    {
+        $clean = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $sessionId));
+        // Ultimii 6 caractere alfanumerici ai hash-ului de sesiune — suficient de
+        // diferiți între două sesiuni pentru a le diferenția rapid.
+        $hash  = strlen($clean) >= 6 ? substr($clean, -6) : $clean;
+        return "Vizitator {$hash}";
     }
 
     /**

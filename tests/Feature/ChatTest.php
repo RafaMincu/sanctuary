@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\ChatMessage;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Str;
 use Tests\TestCase;
 
 class ChatTest extends TestCase
@@ -36,6 +38,30 @@ class ChatTest extends TestCase
             'from_user' => 1,
         ]);
     }
+
+    public function test_authenticated_client_messages_use_the_account_name_in_admin_conversations(): void
+    {
+        $user = User::factory()->create(['name' => 'Radu Popescu']);
+
+        $this->actingAs($user)
+            ->postJson('/api/chat/message', ['message' => 'Am nevoie de ajutor.'])
+            ->assertCreated()
+            ->assertJsonPath('sender_name', 'Radu Popescu');
+
+        $this->assertDatabaseHas('chat_messages', [
+            'user_id' => $user->id,
+            'sender_name' => 'Radu Popescu',
+            'message' => 'Am nevoie de ajutor.',
+        ]);
+
+        $this->withSession(['admin_logged_in' => true])
+            ->get('/admin/chat')
+            ->assertOk()
+            ->assertSee('Radu Popescu')
+            // Numele real al clientului autenticat nu devine „Vizitator".
+            ->assertDontSee('Vizitator abc123');
+    }
+
 
     public function test_guest_can_load_their_messages(): void
     {
