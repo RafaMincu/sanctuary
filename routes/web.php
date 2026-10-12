@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 
 // Live chat API routes (public – works for guests via session + authenticated users)
@@ -23,8 +24,6 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/chat/{sessionId}', [AdminChatController::class, 'show'])->name('admin.chat.show');
     Route::post('/admin/chat/{sessionId}/reply', [AdminChatController::class, 'reply'])->name('admin.chat.reply');
 });
-
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,10 +47,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/autentificare', [AuthController::class, 'login'])->middleware('throttle:6,1')->name('login.store');
     Route::get('/inregistrare', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/inregistrare', [AuthController::class, 'register'])->middleware('throttle:6,1')->name('register.store');
+
+    // Autentificare cu Google (OAuth 2.0 prin Laravel Socialite).
+    Route::get('/autentificare/google', [GoogleAuthController::class, 'redirect'])->middleware('throttle:10,1')->name('google.redirect');
+    Route::get('/autentificare/google/callback', [GoogleAuthController::class, 'callback'])->middleware('throttle:10,1')->name('google.callback');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/contul-meu', [AuthController::class, 'dashboard'])->name('account.dashboard');
+    // Alias fără nume pentru fluxul de login Google (redirecționează către /dashboard).
+    Route::get('/dashboard', [AuthController::class, 'dashboard']);
     Route::post('/deconectare', [AuthController::class, 'logout'])->name('logout');
 });
 

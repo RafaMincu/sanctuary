@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ClaimsGuestBookings;
 use App\Models\Booking;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
+    use ClaimsGuestBookings;
+
     public function showLogin()
     {
         if (Auth::check()) {
@@ -29,7 +32,7 @@ class AuthController extends Controller
             'password' => 'parola',
         ]);
 
-        if (!Auth::attempt([
+        if (! Auth::attempt([
             'email' => strtolower($credentials['email']),
             'password' => $credentials['password'],
         ], $request->boolean('remember'))) {
@@ -99,17 +102,5 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home')->with('success', 'Te-ai deconectat în siguranță.');
-    }
-
-    /**
-     * Atașează contului programările făcute anterior ca vizitator, exclusiv când
-     * emailul coincide și programarea nu aparține deja unui alt utilizator.
-     */
-    private function claimGuestBookings(User $user): void
-    {
-        Booking::query()
-            ->whereNull('user_id')
-            ->whereRaw('LOWER(client_email) = ?', [strtolower(trim($user->email))])
-            ->update(['user_id' => $user->id]);
     }
 }
