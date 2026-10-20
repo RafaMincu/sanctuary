@@ -57,11 +57,11 @@ class BookingTest extends TestCase
         $this->assertEquals('BMW', $booking->metadata['vehicle_make']);
         $this->assertEquals('pending', $booking->status);
 
-        $response->assertRedirect('/programari/' . $booking->booking_number);
+        $response->assertRedirect('/programari/'.$booking->booking_number);
         $response->assertSessionHas('success');
 
         // Check show page renders details
-        $showResponse = $this->get('/programari/' . $booking->booking_number);
+        $showResponse = $this->get('/programari/'.$booking->booking_number);
         $showResponse->assertStatus(200);
         $showResponse->assertSee($booking->booking_number);
         $showResponse->assertSee('Mihai Ionescu');
@@ -91,7 +91,7 @@ class BookingTest extends TestCase
         $this->assertEquals('food', $booking->wing);
         $this->assertEquals('terasa', $booking->metadata['seating_area']);
 
-        $response->assertRedirect('/programari/' . $booking->booking_number);
+        $response->assertRedirect('/programari/'.$booking->booking_number);
     }
 
     public function test_client_can_create_fitness_booking(): void
@@ -117,7 +117,7 @@ class BookingTest extends TestCase
         $this->assertEquals('fitness', $booking->wing);
         $this->assertEquals('masa', $booking->metadata['fitness_goal']);
 
-        $response->assertRedirect('/programari/' . $booking->booking_number);
+        $response->assertRedirect('/programari/'.$booking->booking_number);
     }
 
     public function test_booking_validation_fails_with_invalid_data(): void
@@ -153,6 +153,99 @@ class BookingTest extends TestCase
         $response->assertSee('SNC-TEST01');
         $response->assertSee('Cristian Popa');
         $response->assertSee('Confirmată');
+    }
+
+    public function test_lookup_by_phone_shows_all_bookings_for_that_number(): void
+    {
+        Booking::create([
+            'booking_number' => 'SNC-PHONE1',
+            'wing' => 'auto',
+            'service_type' => 'revizie',
+            'client_name' => 'Cristian Popa',
+            'client_email' => 'cristian@example.com',
+            'client_phone' => '0744556677',
+            'scheduled_at' => now()->addDays(2),
+            'status' => 'pending',
+        ]);
+        Booking::create([
+            'booking_number' => 'SNC-PHONE2',
+            'wing' => 'food',
+            'service_type' => 'terasa',
+            'client_name' => 'Cristian Popa',
+            'client_email' => 'cristian@example.com',
+            'client_phone' => '0744556677',
+            'scheduled_at' => now()->addDays(9),
+            'status' => 'confirmed',
+        ]);
+        Booking::create([
+            'booking_number' => 'SNC-OTHER9',
+            'wing' => 'fitness',
+            'service_type' => 'evaluare',
+            'client_name' => 'Alt Client',
+            'client_email' => 'alt@example.com',
+            'client_phone' => '0799999999',
+            'scheduled_at' => now()->addDays(3),
+            'status' => 'pending',
+        ]);
+
+        $response = $this->get('/programari/verificare?phone=0744556677');
+
+        $response->assertOk();
+        // Toate programările asociate numărului sunt afișate.
+        $response->assertSee('SNC-PHONE1');
+        $response->assertSee('SNC-PHONE2');
+        $response->assertSee('2 programări găsite');
+        // Programările altor numere nu apar.
+        $response->assertDontSee('SNC-OTHER9');
+    }
+
+    public function test_lookup_by_phone_with_no_results_shows_not_found(): void
+    {
+        $response = $this->get('/programari/verificare?phone=0700000000');
+
+        $response->assertOk();
+        $response->assertSee('Nu a fost găsită nicio programare');
+    }
+
+    public function test_lookup_by_partial_phone_number_finds_nothing(): void
+    {
+        Booking::create([
+            'booking_number' => 'SNC-PARTL1',
+            'wing' => 'auto',
+            'service_type' => 'revizie',
+            'client_name' => 'Cristian Popa',
+            'client_email' => 'cristian@example.com',
+            'client_phone' => '0744556677',
+            'scheduled_at' => now()->addDays(2),
+            'status' => 'pending',
+        ]);
+
+        // O parte din număr nu mai este suficientă — trebuie numărul complet.
+        $response = $this->get('/programari/verificare?phone=074455');
+
+        $response->assertOk();
+        $response->assertDontSee('SNC-PARTL1');
+        $response->assertSee('Nu a fost găsită nicio programare');
+    }
+
+    public function test_lookup_by_phone_ignores_spaces_and_dashes_in_input(): void
+    {
+        Booking::create([
+            'booking_number' => 'SNC-FMT001',
+            'wing' => 'auto',
+            'service_type' => 'revizie',
+            'client_name' => 'Cristian Popa',
+            'client_email' => 'cristian@example.com',
+            'client_phone' => '0744556677',
+            'scheduled_at' => now()->addDays(2),
+            'status' => 'pending',
+        ]);
+
+        // Numărul complet introdus cu separatori rămâne potrivit exact.
+        $response = $this->get('/programari/verificare?phone=0744%20556%20677');
+
+        $response->assertOk();
+        $response->assertSee('SNC-FMT001');
     }
 
     public function test_guest_is_redirected_from_bookings_dashboard(): void
@@ -198,8 +291,8 @@ class BookingTest extends TestCase
 
         $response = $this->withSession(['admin_logged_in' => true])
             ->patch("/programari/{$booking->id}/status", [
-            'status' => 'confirmed',
-        ]);
+                'status' => 'confirmed',
+            ]);
 
         $response->assertSessionHas('success');
         $booking->refresh();

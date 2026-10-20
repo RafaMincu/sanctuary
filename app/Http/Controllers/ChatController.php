@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChatMessageSent;
+use App\Events\ChatReadReceipt;
+use App\Events\ChatTypingChanged;
+use App\Events\GuestPresenceChanged;
 use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,23 +44,41 @@ class ChatController extends Controller
 
         // Widgetul e deschis → mesajele de la admin au fost văzute.
         if ($request->query('open')) {
-            ChatMessage::where('session_id', $sessionKey)
+            $markedRead = ChatMessage::where('session_id', $sessionKey)
                 ->where('from_user', false)
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
+
+            // Confirmare de citire (✓✓) → instant pentru admin, nu la poll.
+            if ($markedRead > 0) {
+                ChatReadReceipt::dispatch($sessionKey, 'guest');
+            }
         }
 
         // Prezența vizitatorului pentru panoul admin (oglinda lui chat:admin_online):
-        // reînnoită la fiecare poll al widget-ului. Dacă vizitatorul închide
-        // browserul, expiră singură prin TTL → „Offline” în panou.
-        Cache::put('chat:guest_online:' . $sessionKey, true, now()->addSeconds(15));
+        // reînnoită la fiecare cerere. Dacă vizitatorul închide browserul,
+        // expiră singură prin TTL → „Offline" în panou. Evenimentul se trimite
+        // doar la tranziția offline → online.
+        if (Cache::add('chat:guest_online:'.$sessionKey, true, now()->addSeconds(15))) {
+            GuestPresenceChanged::dispatch($sessionKey, true);
+        }
+        Cache::put('chat:guest_online:'.$sessionKey, true, now()->addSeconds(15));
 
-        // Vizitatorul scrie → indicator pentru panoul admin (dispare imediat
-        // la următorul poll fără typing, altfel stă max. 5s prin TTL).
+        // Vizitatorul scrie → indicator pentru panoul admin. Evenimentul se
+        // trimite doar la schimbarea stării (nu la fiecare poll).
         if ($request->query('typing')) {
-            Cache::put('chat:typing:guest:' . $sessionKey, true, now()->addSeconds(5));
+            $wasTyping = Cache::get('chat:typing:guest:'.$sessionKey);
+            Cache::put('chat:typing:guest:'.$sessionKey, true, now()->addSeconds(5));
+
+            if (! $wasTyping) {
+                ChatTypingChanged::dispatch($sessionKey, true, 'guest');
+            }
         } else {
-            Cache::forget('chat:typing:guest:' . $sessionKey);
+            $wasTyping = Cache::pull('chat:typing:guest:'.$sessionKey);
+
+            if ($wasTyping) {
+                ChatTypingChanged::dispatch($sessionKey, false, 'guest');
+            }
         }
 
         $messages = ChatMessage::where('session_id', $sessionKey)
@@ -116,6 +138,11 @@ class ChatController extends Controller
             'sender_name' => $senderName,
             'from_user'   => true,
         ]);
+
+        // Mesaj nou → broadcast instant widgetului și panourilor admin
+        // (WS), pe lângă răspunsul JSON returnat.
+        ChatMessageSent::dispatch($msg);
+        ChatTypingChanged::dispatch($sessionKey, false, 'guest');
 
         return response()->json([
             'id'          => $msg->id,

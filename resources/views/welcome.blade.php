@@ -23,7 +23,7 @@
             Trei departamente de înaltă performanță reunite sub un singur acoperiș: mecanică de precizie, nutriție de calitate și antrenament dedicat.
         </p>
         <div class="reveal reveal-d3 mt-6 flex flex-wrap items-center justify-center gap-3">
-            <a href="{{ route('bookings.create') }}" class="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-emerald-400 text-black text-xs font-black uppercase tracking-widest hover:opacity-95 transition-opacity shadow-[0_0_20px_rgba(34,211,238,0.25)] flex items-center gap-2">
+            <a href="{{ route('bookings.create') }}" data-turbo="false" class="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-emerald-400 text-black text-xs font-black uppercase tracking-widest hover:opacity-95 transition-opacity shadow-[0_0_20px_rgba(34,211,238,0.25)] flex items-center gap-2">
                 <span>Fă o Programare</span>
                 <span>&rarr;</span>
             </a>

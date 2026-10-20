@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AdminPresenceChanged;
+use App\Events\ChatMessageSent;
+use App\Events\ChatReadReceipt;
+use App\Events\ChatTypingChanged;
 use App\Models\Admin;
 use App\Models\ChatMessage;
 use Illuminate\Http\Request;
@@ -48,6 +52,9 @@ class AdminChatController extends Controller
         Cache::put('chat:admin_online', true, now()->addSeconds(15));
         Cache::put('chat:admin_name', $admin->name, now()->addSeconds(15));
 
+        // Broadcast instant: ● Online în toate widgeturile conectate.
+        AdminPresenceChanged::dispatch(true, $admin->name);
+
         return redirect()->route('admin.chat.index');
     }
 
@@ -62,6 +69,9 @@ class AdminChatController extends Controller
         // (fără a aștepta expirarea TTL-ului din middleware).
         Cache::forget('chat:admin_online');
         Cache::forget('chat:admin_name');
+
+        // Broadcast instant: ● Offline în toate widgeturile conectate.
+        AdminPresenceChanged::dispatch(false);
 
         return redirect()->route('admin.login');
     }
@@ -202,16 +212,36 @@ class AdminChatController extends Controller
     public function messages(Request $request, string $sessionId)
     {
         if ($request->query('typing')) {
+            $wasTyping = Cache::get('chat:typing:admin:'.$sessionId);
             Cache::put('chat:typing:admin:' . $sessionId, true, now()->addSeconds(5));
+
+            // Adminul a început să scrie → eveniment instant pentru vizitator.
+            if (! $wasTyping) {
+                ChatTypingChanged::dispatch(
+                    $sessionId,
+                    true,
+                    'admin',
+                    $request->session()->get('admin_name')
+                );
+            }
         } else {
             // Adminul s-a oprit din scris → indicatorul dispare imediat.
-            Cache::forget('chat:typing:admin:' . $sessionId);
+            $wasTyping = Cache::pull('chat:typing:admin:'.$sessionId);
+
+            if ($wasTyping) {
+                ChatTypingChanged::dispatch($sessionId, false, 'admin');
+            }
         }
 
-        ChatMessage::where('session_id', $sessionId)
+        $markedRead = ChatMessage::where('session_id', $sessionId)
             ->where('from_user', true)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
+
+        // Confirmare de citire (✓✓) → instant pentru vizitator, nu la poll.
+        if ($markedRead > 0) {
+            ChatReadReceipt::dispatch($sessionId, 'admin');
+        }
 
         $messages = ChatMessage::where('session_id', $sessionId)
             ->orderBy('created_at', 'asc')
@@ -250,13 +280,17 @@ class AdminChatController extends Controller
         // Răspuns trimis → indicatorul „scrie..." dispare imediat.
         Cache::forget('chat:typing:admin:' . $sessionId);
 
-        ChatMessage::create([
+        $msg = ChatMessage::create([
             'session_id'  => $sessionId,
             'message'     => $request->message,
             'from_user'   => false,   // false = from admin/support
             // Fiecare admin semnează cu numele lui.
             'sender_name' => $request->session()->get('admin_name', 'Sanctuary Support'),
         ]);
+
+        // Răspuns nou → broadcast instant în widgetul vizitatorului (WS).
+        ChatMessageSent::dispatch($msg);
+        ChatTypingChanged::dispatch($sessionId, false, 'admin');
 
         if ($request->expectsJson()) {
             return response()->json(['success' => true]);

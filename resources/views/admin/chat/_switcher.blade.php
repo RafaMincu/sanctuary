@@ -167,7 +167,17 @@
 
             init() {
                 this.poll();
-                setInterval(() => this.poll(), 4000);
+
+                // Real-time (Reverb): mesajele noi declanșează poll-ul instant
+                // (badge + sunet + notificare de browser, fără întârziere).
+                if (window.Echo) {
+                    try {
+                        Echo.private('admin.chat').listen('.chat.message', () => this.poll());
+                    } catch (e) { /* WS indisponibil → polling rămâne activ */ }
+                }
+
+                // Fallback la 10s (înainte era la 4s).
+                setInterval(() => this.poll(), 10000);
             },
         };
     }

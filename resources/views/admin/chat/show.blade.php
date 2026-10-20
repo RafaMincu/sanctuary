@@ -159,7 +159,7 @@
         </div>
 
         <p class="text-center text-zinc-600 text-[11px] font-mono mt-5">
-            Mesajele se actualizează automat la fiecare 2 secunde
+            Mesajele se actualizează instant (WebSocket) — cu reîncărcare de siguranță la 15 secunde
         </p>
     </section>
 
@@ -253,7 +253,31 @@
 
                 init() {
                     this.fetchMessages();
-                    setInterval(() => this.fetchMessages(), 2000);
+
+                    // Real-time (Reverb): mesajele/„scrie..."/prezența vizitatorului
+                    // vin instant prin WebSocket; polling-ul e doar fallback.
+                    if (window.Echo) {
+                        try {
+                            Echo.private('admin.chat')
+                                .listen('.chat.message', (e) => {
+                                    if (e.session_id === sessionId) this.fetchMessages();
+                                })
+                                .listen('.chat.typing', (e) => {
+                                    if (e.session_id === sessionId && e.who === 'guest') {
+                                        this.guestTyping = !!e.typing;
+                                    }
+                                })
+                                .listen('.chat.read', (e) => {
+                                    if (e.session_id === sessionId) this.fetchMessages();
+                                })
+                                .listen('.guest.presence', (e) => {
+                                    if (e.session_id === sessionId) this.guestOnline = !!e.guest_online;
+                                });
+                        } catch (e) { /* WS indisponibil → polling rămâne activ */ }
+                    }
+
+                    // Fallback: reîncărcare lentă la 15s (înainte era la 2s).
+                    setInterval(() => this.fetchMessages(), 15000);
                 }
             };
         }

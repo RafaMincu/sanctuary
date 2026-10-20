@@ -1,5 +1,10 @@
  {{-- Bula de chat apare DOAR pentru vizitatori — niciodată pe /admin* ca să nu acopere panoul --}}
  @if (!request()->is('admin*'))
+ @php
+     // Cheia canalului real-time al acestei sesiuni (aceeași logică ca în
+     // ChatController::getSessionKey — autorizată în routes/channels.php).
+     $chatSessionKey = auth()->check() ? 'user_'.auth()->id() : request()->session()->getId();
+ @endphp
  <div
      x-data="{
          open: false,
@@ -161,9 +166,32 @@
             }
         },
         init() {
-            this.fetchMessages();
-            setInterval(() => this.fetchMessages(), 2000);
-        }
+            this.fetchMessages();       // încărcarea inițială
+            this.startRealtime();       // WS instant (Reverb), dacă e disponibil
+            // Fallback + prezență: reîncărcare lentă la 15s (înainte era la 2s).
+            // Mesajele noi vin instant prin WebSocket, iar acest interval acoperă
+            // doar cazurile în care WS-ul nu pornește (rețele care blochează).
+            setInterval(() => this.fetchMessages(), 15000);
+        },
+        startRealtime() {
+            if (!window.Echo) return; // fără WS → doar polling la 15s
+            try {
+                // Canalul propriu al acestei sesiuni (autorizat de server:
+                // doar proprietarul sesiunii se poate abona).
+                Echo.private('visitor.chat.{{ $chatSessionKey }}')
+                    .listen('.chat.message', () => this.fetchMessages())
+                    .listen('.chat.read', () => this.fetchMessages())
+                    .listen('.chat.typing', (e) => {
+                        if (e.who === 'admin') this.adminTyping = !!e.typing;
+                    });
+
+                // Prezența adminului (● Online / Offline) — canal public.
+                Echo.channel('admin.presence')
+                    .listen('.admin.presence', (e) => {
+                        this.adminOnline = !!e.admin_online;
+                    });
+            } catch (e) { /* WS indisponibil → polling-ul rămâne activ */ }
+        },
      }"
      class="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
 

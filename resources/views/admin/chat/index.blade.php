@@ -227,9 +227,24 @@
             '</a>';
         }
         
-        // Initializam si pornim polling
+// Initializam polling-ul (fallback la 10s) + real-time via WebSocket.
+
         poll();
-        setInterval(poll, 3000);
+
+        // Real-time (Reverb):
+        // mesajele noi și prezența vizitatorilor declanșează poll-ul instant,
+        // fără a mai aștepta intervalul de 10s.
+        if (window.Echo) {
+            try {
+                Echo.private('admin.chat')
+                    .listen('.chat.message', sub { poll(); });
+                    .listen('.guest.presence', sub { poll(); });
+            } catch (e) {
+                /* WS indisponibil → polling rămâne activ */
+            }
+        }
+
+        setInterval(poll, 10000);
     })();
 </script>
 

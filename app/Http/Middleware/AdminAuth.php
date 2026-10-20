@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\AdminPresenceChanged;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,12 +25,18 @@ class AdminAuth
         // Prezența adminului pentru widget-ul vizitatorului: reînnoită la fiecare
         // cerere autentificată (polling-ul panoului). Dacă adminul închide browserul
         // fără logout, expiră singură prin TTL → „Offline” în live chat.
+        $newlyOnline = Cache::add('chat:admin_online', true, now()->addSeconds(15));
         Cache::put('chat:admin_online', true, now()->addSeconds(15));
 
         // Numele adminului activ → widget-ul arată cine răspunde („Ana scrie...”).
         $adminName = $request->session()->get('admin_name');
         if ($adminName) {
             Cache::put('chat:admin_name', $adminName, now()->addSeconds(15));
+        }
+
+        // Tranziția offline → online se broadcast-ează instant în widgeturi.
+        if ($newlyOnline) {
+            AdminPresenceChanged::dispatch(true, $adminName);
         }
 
         return $next($request);

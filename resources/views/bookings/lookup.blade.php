@@ -44,42 +44,52 @@
 
         <!-- Results Section -->
         @if ($searched)
-            @if ($booking)
-                <div class="reveal p-6 bg-[#0b0b0e]/90 border border-zinc-800 rounded-sm backdrop-blur-xl">
-                    <div class="flex items-center justify-between pb-4 border-b border-zinc-900">
-                        <div>
-                            <span class="text-[11px] font-mono text-zinc-500 uppercase">Cod:</span>
-                            <span class="text-lg font-mono font-bold text-cyan-400 ml-1">{{ $booking->booking_number }}</span>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider bg-zinc-900 border border-zinc-800 text-{{ $booking->status_color }}-400">
-                            {{ $booking->status_label }}
-                        </span>
+            @if ($bookings->isNotEmpty())
+                @if ($bookings->count() > 1)
+                    <div class="reveal mb-4 px-4 py-3 bg-cyan-500/5 border border-cyan-500/20 rounded-sm text-xs font-mono text-cyan-300 uppercase tracking-wider text-center">
+                        {{ $bookings->count() }} programări găsite pentru numărul {{ $phone }}
                     </div>
+                @endif
 
-                    <div class="py-4 space-y-2 text-xs font-mono">
-                        <div class="flex justify-between">
-                            <span class="text-zinc-500">Departament:</span>
-                            <span class="text-zinc-300">{{ $booking->wing_label }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-zinc-500">Serviciu:</span>
-                            <span class="text-zinc-300 font-bold uppercase">{{ $booking->service_type }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-zinc-500">Programat pentru:</span>
-                            <span class="text-zinc-300 font-bold">{{ $booking->scheduled_at->format('d.m.Y // H:i') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-zinc-500">Nume Client:</span>
-                            <span class="text-zinc-300">{{ $booking->client_name }}</span>
-                        </div>
-                    </div>
+                <div class="space-y-4">
+                    @foreach ($bookings as $booking)
+                        <div class="reveal p-6 bg-[#0b0b0e]/90 border border-zinc-800 rounded-sm backdrop-blur-xl">
+                            <div class="flex items-center justify-between pb-4 border-b border-zinc-900">
+                                <div>
+                                    <span class="text-[11px] font-mono text-zinc-500 uppercase">Cod:</span>
+                                    <span class="text-lg font-mono font-bold text-cyan-400 ml-1">{{ $booking->booking_number }}</span>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider bg-zinc-900 border border-zinc-800 text-{{ $booking->status_color }}-400">
+                                    {{ $booking->status_label }}
+                                </span>
+                            </div>
 
-                    <div class="pt-4 border-t border-zinc-900 flex justify-end">
-                        <a href="{{ route('bookings.show', $booking->booking_number) }}" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cyan-400 hover:underline">
-                            Vezi Detaliile Complete &rarr;
-                        </a>
-                    </div>
+                            <div class="py-4 space-y-2 text-xs font-mono">
+                                <div class="flex justify-between">
+                                    <span class="text-zinc-500">Departament:</span>
+                                    <span class="text-zinc-300">{{ $booking->wing_label }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-zinc-500">Serviciu:</span>
+                                    <span class="text-zinc-300 font-bold uppercase">{{ $booking->service_type }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-zinc-500">Programat pentru:</span>
+                                    <span class="text-zinc-300 font-bold">{{ $booking->scheduled_at->format('d.m.Y // H:i') }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-zinc-500">Nume Client:</span>
+                                    <span class="text-zinc-300">{{ $booking->client_name }}</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-zinc-900 flex justify-end">
+                                <a href="{{ route('bookings.show', $booking->booking_number) }}" class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-cyan-400 hover:underline">
+                                    Vezi Detaliile Complete &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             @else
                 <div class="reveal p-6 bg-[#0b0b0e]/90 border border-rose-900/30 rounded-sm text-center">

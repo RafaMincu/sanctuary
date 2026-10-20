@@ -6,7 +6,6 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 
-
 class BookingController extends Controller
 {
     /**
@@ -42,7 +41,7 @@ class BookingController extends Controller
     public function create(Request $request)
     {
         $selectedWing = $request->query('wing', 'auto');
-        if (!in_array($selectedWing, ['auto', 'food', 'fitness'])) {
+        if (! in_array($selectedWing, ['auto', 'food', 'fitness'])) {
             $selectedWing = 'auto';
         }
 
@@ -92,12 +91,14 @@ class BookingController extends Controller
 
     /**
      * Public lookup form and results
+     * Căutarea după cod întoarce programarea unică; căutarea după numărul
+     * de telefon întoarce TOATE programările asociate acelui număr.
      */
     public function lookup(Request $request)
     {
         $code = strtoupper(trim((string) $request->input('code', '')));
         $phone = trim((string) $request->input('phone', ''));
-        $booking = null;
+        $bookings = collect();
         $searched = false;
 
         if ($code !== '' || $phone !== '') {
@@ -108,14 +109,22 @@ class BookingController extends Controller
                 $query->where('booking_number', $code);
             }
             if ($phone !== '') {
-                $query->where('client_phone', 'like', '%' . $phone . '%');
+                // Potrivire pe numărul COMPLET: comparăm doar cifrele/charsetul
+                // fără separatorii obișnuiți (spații, cratime, puncte), însă fără
+                // să acceptăm părți din număr.
+                $normalizedPhone = preg_replace('/[\s\-.]+/', '', $phone);
+
+                $query->whereRaw(
+                    "REPLACE(REPLACE(REPLACE(client_phone, ' ', ''), '-', ''), '.', '') = ?",
+                    [$normalizedPhone]
+                );
             }
 
-            $booking = $query->latest()->first();
+            $bookings = $query->latest()->get();
         }
 
         return view('bookings.lookup', [
-            'booking' => $booking,
+            'bookings' => $bookings,
             'code' => $code,
             'phone' => $phone,
             'searched' => $searched,
@@ -144,9 +153,9 @@ class BookingController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('booking_number', 'like', "%{$search}%")
-                  ->orWhere('client_name', 'like', "%{$search}%")
-                  ->orWhere('client_phone', 'like', "%{$search}%")
-                  ->orWhere('client_email', 'like', "%{$search}%");
+                    ->orWhere('client_name', 'like', "%{$search}%")
+                    ->orWhere('client_phone', 'like', "%{$search}%")
+                    ->orWhere('client_email', 'like', "%{$search}%");
             });
         }
 
