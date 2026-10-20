@@ -12,7 +12,7 @@
 
 @section('content')
     <section class="relative z-10 max-w-3xl mx-auto px-6 pt-12 pb-2 text-center">
-        <p class="reveal text-zinc-500 text-xs uppercase tracking-[0.25em] mb-3 font-mono">// fa-l la loc cum era // Concept Est. 2026</p>
+        <p class="reveal text-zinc-500 text-xs uppercase tracking-[0.25em] mb-3 font-mono">// THE SANCTUARY // - Concept Est. 2026</p>
         <h1 class="reveal reveal-d1 text-4xl md:text-6xl font-black tracking-wide uppercase text-white mb-2">
             Welcome To <span class="relative inline-block">
                 <span class="title-live pointer-events-none absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 blur-xl opacity-50" aria-hidden="true">The Sanctuary</span>
